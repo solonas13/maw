@@ -1,7 +1,5 @@
-maw
+MAW: Minimal Absent Words
 ===
-
-Minimal Absent Words
 
 Copyright (C) 2014 Alice Heliou and Solon P. Pissis.
 
