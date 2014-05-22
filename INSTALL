@@ -11,7 +11,7 @@ For Ubuntu Linux, make sure your are on-line, and install the above via
 Basic Instructions
 ==================
 
-   The shell command `make' should compile this example program. 
+   The shell command `make' should compile this program. 
 
 After compilation the binary `maw' will be created in the working 
 directory, e.g. you may call it from this directory via
