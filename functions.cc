@@ -314,7 +314,7 @@ unsigned int GetBefore (
         lcp = 0;
         StackPush(&lifo_lcp, &lcp);
 
-        /* Here we count the maximum number of different LCP values */
+        /* Max LCP value */
         for ( int i = 0; i < n; i++ )
                 if( LCP[i] > hm )
                         hm = LCP[i];
@@ -595,6 +595,8 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, int * SA, int
         	}
 
     	}
+
+	fprintf( out_fd, "\n" );
 
 	if ( fclose ( out_fd ) )
 	{

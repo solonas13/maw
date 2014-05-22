@@ -16,5 +16,5 @@ Basic Instructions
 After compilation the binary `maw' will be created in the working 
 directory, e.g. you may call it from this directory via
 
- S ./maw
+ S ./maw -a DNA -i ./data/1.fasta -o 1.fasta.out -k 2 -K 4
 
