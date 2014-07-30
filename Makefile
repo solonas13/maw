@@ -4,7 +4,7 @@ CC=     g++
  
 CFLAGS= -g -msse3 -O3 -fomit-frame-pointer -funroll-loops 
  
-LFLAGS= -I $(HOME)/sdsl/include -L $(HOME)/sdsl/lib -lsdsl -ldivsufsort -ldivsufsort64 -lm -lz
+LFLAGS= -std=c++11 -O3 -DNDEBUG -I ./libsdsl/include/ -L ./libsdsl/lib/ -lsdsl -ldivsufsort -ldivsufsort64 -Wl,-rpath=$(PWD)/libmpfr/lib
  
 EXE=    maw
  
