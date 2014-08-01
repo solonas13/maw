@@ -106,7 +106,7 @@ unsigned int compute_maw ( unsigned char * seq, unsigned char * seq_id, struct T
         invSA = ( INT * ) calloc( n , sizeof( INT ) );
         if( ( invSA == NULL) )
         {
-                fprintf(stderr, " Error: Cannot allocate memory.\n" );
+                fprintf(stderr, " Error: Cannot allocate memory for invSA.\n" );
                 return ( 0 );
         }
 
