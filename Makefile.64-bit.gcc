@@ -1,8 +1,8 @@
-MF=     Makefile
+MF=     Makefile.64-bit.gcc
  
 CC=     g++
  
-CFLAGS= -g -msse3 -O3 -fomit-frame-pointer -funroll-loops 
+CFLAGS= -g -D_USE_64 -msse3 -O3 -fomit-frame-pointer -funroll-loops 
  
 LFLAGS= -std=c++11 -O3 -DNDEBUG -I ./libsdsl/include/ -L ./libsdsl/lib/ -lsdsl -ldivsufsort -ldivsufsort64 -Wl,-rpath=$(PWD)/libmpfr/lib
  
@@ -10,7 +10,7 @@ EXE=    maw
  
 SRC=    maw.cc input.cc stack.cc functions.cc lcp.cc
  
-HD=     mawdefs.h stack.h lcp.h Makefile
+HD=     mawdefs.h stack.h Makefile.64-bit.gcc
  
 # 
 # No need to edit below this line 

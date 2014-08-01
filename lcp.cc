@@ -18,13 +18,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "lcp.h"
+#include "mawdefs.h"
 
-int * LCParray ( unsigned char *text, int n, int * SA, int * ISA )
+INT * LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA )
 {										
-	int i=0, j=0;
+	INT i=0, j=0;
 
-	int * LCP = ( int * ) calloc  ( n, sizeof( int ) );
+	INT * LCP = ( INT * ) calloc  ( n, sizeof( INT ) );
 
 	LCP[0] = 0;
 	for ( i = 0; i < n; i++ ) // compute LCP[ISA[i]]

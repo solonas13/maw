@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 		}
 
 		unsigned int max_alloc_seq = 0;
-		unsigned int seq_len = 0;
+		INT seq_len = 0;
 
 		while ( ( c = fgetc( in_fd ) ) != EOF && c != '>' )
 		{
@@ -160,11 +160,24 @@ int main(int argc, char **argv)
 				strcat ( ( char * ) seq, DEL_STR );
 				strcat ( ( char * ) seq, ( char * ) rc_seq );
 				free ( rc_seq );
+
+				#ifdef _USE_32
 				fprintf( stderr, "Processing both strands of sequence %s of length %d\n", ( char * ) seq_id, seq_len );
+				#endif
+
+				#ifdef _USE_64
+				fprintf( stderr, "Processing both strands of sequence %s of length %ld\n", ( char * ) seq_id, seq_len );
+				#endif
 			}
 			else
 			{
+				#ifdef _USE_32
 				fprintf( stderr, "Processing 5'->3' strand of sequence %s of length %d\n", ( char * ) seq_id, seq_len );
+				#endif
+
+				#ifdef _USE_64
+				fprintf( stderr, "Processing 5'->3' strand of sequence %s of length %ld\n", ( char * ) seq_id, seq_len );
+				#endif
 			}
 			compute_maw ( seq, seq_id, sw );
 		}

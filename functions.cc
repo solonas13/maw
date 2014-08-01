@@ -25,11 +25,17 @@
 #include <sys/time.h>
 
 #include "mawdefs.h"
-#include "lcp.h"
 
-#include <divsufsort.h>                                         // include header for suffix sort
-#include <sdsl/bit_vectors.hpp>					// include header for bit vectors
-#include "stack.h"        					// include header for stack structure
+#ifdef _USE_64
+#include <divsufsort64.h>                                         // include header for suffix sort
+#endif
+
+#ifdef _USE_32
+#include <divsufsort.h>                                           // include header for suffix sort
+#endif
+
+#include <sdsl/bit_vectors.hpp>					  // include header for bit vectors
+#include "stack.h"        					  // include header for stack structure
 
 using namespace sdsl;
 using namespace std;
@@ -41,12 +47,30 @@ double gettime( void )
     return ttime.tv_sec + ttime.tv_usec * 0.000001;
 };
 
+unsigned int LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA, INT * LCP )
+{										
+	INT i=0, j=0;
+
+	LCP[0] = 0;
+	for ( i = 0; i < n; i++ ) // compute LCP[ISA[i]]
+		if ( ISA[i] != 0 ) 
+		{
+			if ( i == 0) j = 0;
+			else j = (LCP[ISA[i-1]] >= 2) ? LCP[ISA[i-1]]-1 : 0;
+			while ( text[i+j] == text[SA[ISA[i]-1]+j] )
+				j++;
+			LCP[ISA[i]] = j;
+		}
+
+	return ( 1 );
+}
+
 unsigned int compute_maw ( unsigned char * seq, unsigned char * seq_id, struct TSwitch sw )
 {
-	int * SA;
-	int * LCP;
-	int * invSA;
-	int n = strlen ( ( char * ) seq );
+	INT * SA;
+	INT * LCP;
+	INT * invSA;
+	INT n = strlen ( ( char * ) seq );
 	int sigma;
     	bit_vector * Before;
     	bit_vector * Beforelcp;
@@ -55,52 +79,73 @@ unsigned int compute_maw ( unsigned char * seq, unsigned char * seq_id, struct T
         else if ( ! strcmp ( "PROT", sw . alphabet ) )  sigma = strlen ( ( char * ) PROT );
 
         /* Compute the suffix array */
-        SA = ( int * ) malloc( (size_t ) ( n ) * sizeof(int));
+        SA = ( INT * ) malloc( ( n ) * sizeof( INT ) );
         if( ( SA == NULL) )
         {
-                fprintf(stderr, " Error: Cannot allocate memory.\n" );
+                fprintf(stderr, " Error: Cannot allocate memory for SA.\n" );
                 return ( 0 );
         }
 
-        if( divsufsort( seq, SA, ( saidx_t ) ( n ) ) != 0 )
+	#ifdef _USE_64
+        if( divsufsort64( seq, SA,  n ) != 0 )
         {
-                fprintf(stderr, " Error: Cannot allocate memory.\n" );
+                fprintf(stderr, " Error: SA computation failed.\n" );
                 exit( EXIT_FAILURE );
         }
+	#endif
+
+	#ifdef _USE_32
+        if( divsufsort( seq, SA,  n ) != 0 )
+        {
+                fprintf(stderr, " Error: SA computation failed.\n" );
+                exit( EXIT_FAILURE );
+        }
+	#endif
 
         /*Compute the inverse SA array */
-        invSA = (int *) calloc( ( size_t )  ( n ) , sizeof( int ) );
+        invSA = ( INT * ) calloc( n , sizeof( INT ) );
         if( ( invSA == NULL) )
         {
                 fprintf(stderr, " Error: Cannot allocate memory.\n" );
                 return ( 0 );
         }
 
-        for ( int i = 0; i < n; i ++ )
+        for ( INT i = 0; i < n; i ++ )
         {
                 invSA [SA[i]] = i;
         }
 
+	LCP = ( INT * ) calloc  ( n, sizeof( INT ) );
+        if( ( LCP == NULL) )
+        {
+                fprintf(stderr, " Error: Cannot allocate memory for LCP.\n" );
+                return ( 0 );
+        }
+
         /* Compute the LCP array */
-        LCP = LCParray( seq, n, SA, invSA );
+        if( LCParray( seq, n, SA, invSA, LCP ) != 1 )
+        {
+                fprintf(stderr, " Error: LCP computation failed.\n" );
+                exit( EXIT_FAILURE );
+        }
 
 	free ( invSA );
 
-	int v_size = 2 * n;
+	INT v_size = 2 * n;
 
     	Before = new bit_vector[sigma];
         if( ( Before == NULL) )
         {
-                fprintf(stderr, " Error: Cannot allocate memory.\n" );
+                fprintf(stderr, " Error: Cannot allocate memory for Before.\n" );
                 return ( 0 );
         }
 	Beforelcp = new bit_vector[sigma];
         if( ( Beforelcp == NULL) )
         {
-                fprintf(stderr, " Error: Cannot allocate memory.\n" );
+                fprintf(stderr, " Error: Cannot allocate memory for BeforeLCP.\n" );
                 return ( 0 );
         }
-    	for ( int i = 0; i < sigma; i++ )
+    	for ( INT i = 0; i < sigma; i++ )
 	{
 		Before[i] = bit_vector( v_size, 0 );
 		Beforelcp[i] = bit_vector( v_size, 0 );
@@ -258,9 +303,9 @@ int RevMapping ( unsigned char b )
 }
 
 /* computes the reverse complement of str */
-unsigned int RevComStr ( unsigned char * str, unsigned char * str2, unsigned int iLen )
+unsigned int RevComStr ( unsigned char * str, unsigned char * str2, INT iLen )
 {
-   unsigned int i = 0;
+   INT i = 0;
    while ( iLen -- )
     {
       switch ( str[iLen] )
@@ -290,26 +335,26 @@ unsigned int RevComStr ( unsigned char * str, unsigned char * str2, unsigned int
 
 unsigned int GetBefore (
 				unsigned char * seq,
-				int n,
+				INT n,
 				int sigma,
-				int * SA,
-				int * LCP,
+				INT * SA,
+				INT * LCP,
 				bit_vector * Before,
 				bit_vector * Beforelcp )
 {
-        int hm = 0;
-        int k = 0;
-        int lcp;
-        int mem;
-        int proxa;
-        int proxb;
+        INT hm = 0;
+        INT k = 0;
+        INT lcp;
+        INT mem;
+        INT proxa;
+        INT proxb;
 
         TStack lifo_lcp;
-        StackNew ( &lifo_lcp, sizeof( int ) );
+        StackNew ( &lifo_lcp, sizeof( INT ) );
         TStack lifo_mem;
-        StackNew ( &lifo_mem, sizeof( int ) );
+        StackNew ( &lifo_mem, sizeof( INT ) );
         TStack lifo_rem;
-        StackNew ( &lifo_rem, sizeof( int ) );
+        StackNew ( &lifo_rem, sizeof( INT ) );
 
         lcp = 0;
         StackPush(&lifo_lcp, &lcp);
@@ -321,11 +366,11 @@ unsigned int GetBefore (
         hm = hm + 2;
 
         bit_vector* interval = new bit_vector[sigma];
-        for ( int i = 0; i < sigma; i++)
+        for ( INT i = 0; i < sigma; i++)
                 interval[i]=bit_vector(hm,0);
 
         // First pass : top-down
-        for ( int i = 0; i < n; i++ )
+        for ( INT i = 0; i < n; i++ )
         {
                 // first we update the interval table
                 // we empty the interval that corresponds to a higher lcp value
@@ -416,7 +461,7 @@ unsigned int GetBefore (
         lcp=0;
         StackPush(&lifo_lcp,&lcp);
 
-        for (int i=n-1; i>-1; i--)
+        for (INT i=n-1; i>-1; i--)
         {
                 StackPop(&lifo_lcp,&lcp);
                 proxa=LCP[i]+1;   //proxb is the lcp-value that is just higher than LCP[i]
@@ -504,7 +549,7 @@ unsigned int GetBefore (
 	return ( 1 );
 }
 
-unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, int * SA, int n, int sigma, int * LCP, bit_vector* Before, bit_vector* Beforelcp, unsigned int k, unsigned int K, char * out_file )
+unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, INT * SA, INT n, int sigma, INT * LCP, bit_vector* Before, bit_vector* Beforelcp, unsigned int k, unsigned int K, char * out_file )
 {
     	FILE * out_fd;
 	char * maw;
@@ -512,12 +557,12 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, int * SA, int
 	// compute a bitvector that contains a `1', if an identical row has already been seen => to avoid duplicates.
     	bit_vector Mem = bit_vector(n,0);
     	TStack lifo_lcp;
-	StackNew (&lifo_lcp, sizeof(int));
-	int lcp=0;
-	int mem;
+	StackNew (&lifo_lcp, sizeof( INT ) );
+	INT lcp = 0;
+	INT mem;
 	StackPush(&lifo_lcp, &lcp);
 
-	for ( int i = 0; i < n; i++ )
+	for ( INT i = 0; i < n; i++ )
 	{
         	StackPop(&lifo_lcp,&lcp);
             	while(!StackEmpty(&lifo_lcp)&&lcp>LCP[i])
@@ -551,7 +596,7 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, int * SA, int
                 return ( 0 );
         }
 
-	for ( int i = 0; i < n; i++ )
+	for ( INT i = 0; i < n; i++ )
     	{
         	for( int l = 0; l < sigma; l++ )
         	{
@@ -574,8 +619,8 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, int * SA, int
 		    	if ( B1 )
 		    	{
 				maw[0] = Mapping( l );
-				int start = SA[i];
-				int size = SA[i]+ LCP[i] + 1 - start;
+				INT start = SA[i];
+				INT size = SA[i]+ LCP[i] + 1 - start;
 				memcpy( &maw[1], &seq[start], size );
 				maw[size + 1] = '\0';
 				if ( ! ( strstr ( maw, DEL_STR ) ) )
@@ -585,8 +630,8 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, int * SA, int
 		    	else if ( B2 )
 		    	{
 				maw[0] = Mapping( l );
-				int start = SA[i];
-				int size = SA[i] + LCP[i + 1] + 1 - start;
+				INT start = SA[i];
+				INT size = SA[i] + LCP[i + 1] + 1 - start;
 				memcpy( &maw[1], &seq[start], size );
 				maw[size + 1] = '\0';
 				if ( ! ( strstr ( maw, DEL_STR ) ) )

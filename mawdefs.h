@@ -30,6 +30,14 @@
 using namespace sdsl;
 using namespace std;
 
+#ifdef _USE_64
+typedef int64_t INT;
+#endif
+
+#ifdef _USE_32
+typedef int32_t INT;
+#endif
+
 struct TSwitch
  {
    char               * alphabet;
@@ -44,26 +52,27 @@ struct TSwitch
 double gettime( void );
 int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
 void usage ( void );
-unsigned int RevComStr ( unsigned char * str, unsigned char * str2, unsigned int iLen );
+unsigned int RevComStr ( unsigned char * str, unsigned char * str2, INT iLen );
 unsigned int compute_maw ( unsigned char * seq, unsigned char * seq_id, struct TSwitch sw );
 unsigned char Mapping( int a );
 int RevMapping ( unsigned char b );
+unsigned int LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA, INT * LCP );
 
 unsigned int GetBefore (
 				unsigned char * seq,
-                                int n,
+                                INT n,
                                 int sigma,
-				int * SA,
-                                int * LCP,
+				INT * SA,
+                                INT * LCP,
                                 bit_vector * Before,
                                 bit_vector * Beforelcp );
 unsigned int GetMaws(
 				unsigned char * seq,
 				unsigned char * seq_id,
-				int * SA,
-				int n,
+				INT * SA,
+				INT n,
 				int sigma,
-				int * LCP,
+				INT * LCP,
 				bit_vector * Before,
 				bit_vector * Beforelcp,
 				unsigned int k,
