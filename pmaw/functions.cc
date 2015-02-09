@@ -388,7 +388,7 @@ INT Get_min_abs_w(
     for (INT i=0; i<n; i++)
     {
         if (LCP[i]<l && seq[SA[i]+LCP[i]]!='$'){Count[LCP[i]]+=1;}
-	if (LCP[i]>lcpmax){lcpmax=LCP[i];}
+	    if (LCP[i]>lcpmax){lcpmax=LCP[i];}
     }
 
 #ifdef _LOG_WRITE
@@ -402,20 +402,22 @@ INT Get_min_abs_w(
     INT V=V2-1;
     for (INT i=0; i<l; i++)
     {
-        if (Count[i]<V){T=i;break;}
+        if (Count[i]<V+1){T=i;break;}
         V=V*V2;
     }
     free ( Count);
 #ifdef _LOG_WRITE
-    cout << "lower bound of MAW length :"<< T << endl;
+    cout << "lower bound of MAW length :"<< T+1 << endl;
 #endif    
     if (T==0 || T==1)
     {
-        k=2;
+        if (k<2)   
+            k=2;
         T=0; V=V2-1;
     }
-    else{T=T-2; V=V/(V2*V2);}
-    if (T>0 && k<T+3){k=T+3;}
+    
+    else{T=T-1; V/V2;}
+    if (T>0 && k<T+2){k=T+2;}  
     if (K>lcpmax+2){K=lcpmax+2;}
     
 #ifdef _LOG_WRITE
@@ -431,9 +433,12 @@ INT Get_min_abs_w(
     INT * Cut=( INT * ) calloc( (size_t)(2*V+3+r), sizeof( INT ) );
     INT y=0;
     Cut[y++]=0;
-    for (INT i=0; i<n; i++)
+    if (T>0)
     {
-        if (LCP[i]==T){Cut[y++]=i;}
+        for (INT i=0; i<n; i++)
+        {
+            if (LCP[i]==T){Cut[y++]=i;}
+        }
     }
     Cut[y]=n+1;
 
@@ -575,7 +580,7 @@ INT Get_min_abs_w(
                                 StackPush(&lifo_set, &*Setletter1);
                                 StackPush(&lifo_pos,&pos2);
                             }
-                           else{if (pos2+1>Cut[z]&&lpos!=LCP[pos2]) {StackPush(&lifo_att,&pos2);}} //modif 17 sept
+                           else{if (pos2+1>Cut[z]&&lpos!=LCP[pos2]) {StackPush(&lifo_att,&pos2);}}
                         }
 
                         StackTop(&lifo_pos, &pos);
@@ -737,10 +742,10 @@ INT Get_min_abs_w(
         StackTop(&lifo_pos, &pos);
         if (pos>-1){lpos=LCP[pos];}
         else {lpos=-1;}
-        if (mini<maxi && x>=0 && x<n && SA[x]>0 && RevMapping(seq[SA[x]-1])>=0){Setletter[RevMapping(seq[SA[x]-1])+1]=1;} // modif 24 sept
+        if (mini<maxi && x>=0 && x<n && SA[x]>0 && RevMapping(seq[SA[x]-1])>=0){Setletter[RevMapping(seq[SA[x]-1])+1]=1;}
 
 
-        while(mini < maxi && lcp < lpos && pos+1 > 0) // modif 23 sept
+        while(mini < maxi && lcp < lpos && pos+1 > 0)
         {
             while (left+1>0 && LCP[left]>=lpos)
             {
@@ -767,7 +772,7 @@ INT Get_min_abs_w(
             if (!StackEmpty(&lifo_att))
             {
                 StackPop(&lifo_att,&pos2);
-                if (pos2+1>0&&(lpos<LCP[pos2] || (lpos==LCP[pos2] && pos<pos2)))
+                if (pos2+1>Cut[z]&&(lpos<LCP[pos2] || (lpos==LCP[pos2] && pos<pos2)))
                 {
                     p=1;
                     while (pos2-p>=0 && LCP[pos2-p]<=LCP[pos2] && (pos2-p==0 || LCP[pos2-p-1]<=LCP[pos2-p])&&pos!=pos2-p)
@@ -798,7 +803,6 @@ INT Get_min_abs_w(
                 }
                 else{if (pos2+1>0 && lpos!=LCP[pos2]) {StackPush(&lifo_att,&pos2);}}
             }
-		// ajouter
         }
 
         free(Setletter);
@@ -960,7 +964,7 @@ INT Empty_stack(
     while (!StackEmpty(&lifo_pos[0]) && pos+1>0 && LCP[pos]==lpos)
     {
         StackPush(&lifo_mem_pos,&pos);
-        if (pos>=0 && pos<n && SA[pos]>0 && RevMapping(seq[SA[pos]-1])>=0) //modif 24 sept
+        if (pos>=0 && pos<n && SA[pos]>0 && RevMapping(seq[SA[pos]-1])>=0)
         {
             Setletterbis[RevMapping(seq[SA[pos]-1])+1]=1;
         }
@@ -1094,7 +1098,7 @@ if (lpos+2>=k&& lpos+2<=K){
 
         // longest proper suffix of MAWS : seq[SA[pos] ... SA[pos]+lpos], MAWS of length lpos+2
 
-        if (pos+1 <n+1 && SA[pos]+lpos<n ) // modif24 sept
+        if (pos+1 <n+1 && SA[pos]+lpos<n )
         {
             for (INT i=1; i<sigma+1; i++)
             {
@@ -1353,7 +1357,7 @@ bool Next_pos(TStack * lifo_att, INT sigma, INT * Tx,INT * Tleft, INT * Tright,I
         if (rightc<n+1 &&  LCP[rightc]>LCP[xc])   // case 2b
         {
             Min_right=true;
-            if(((left>0 && LCP[left-1]<=LCP[left]&& LCP[left]<LCP[rightc] )|| (left==0 && LCP[left]<LCP[rightc]) )&& LCP[left]<LCP[x]) // modif 17 sept
+            if(((left>0 && LCP[left-1]<=LCP[left]&& LCP[left]<LCP[rightc] )|| (left==0 && LCP[left]<LCP[rightc]) )&& LCP[left]<LCP[x]) 
             {
                 //case 2c
                 StackTop(&lifo_pos[0],&pos);
