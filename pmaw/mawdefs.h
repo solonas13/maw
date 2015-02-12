@@ -18,6 +18,7 @@
 
 #include <sdsl/bit_vectors.hpp>
 #include "stack.h"
+#include <list>
 #define ALLOC_SIZE              1048576
 #define DEL                     '$'
 #define DEL_STR                 "$"
@@ -51,6 +52,15 @@ struct TSwitch
    INT                  threads;
  };
 
+class Maw{
+	public :
+ 	char letter;
+	int start;
+	int length;
+
+	Maw(char letter, int start, int length);
+};
+
 double gettime( void );
 
 int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
@@ -75,12 +85,12 @@ INT Empty_stack(
                         INT k,
                         INT K,
                         unsigned char* seq,
-                        std:: stringstream & buff_maw,
                         INT * Tx,
                         INT * Tleft,
                         INT * Tright,
                         INT * LCP,
-                        INT * SA);
+                        INT * SA,
+	std::list<Maw> * Table);
 
 
 INT Get_min_abs_w(
