@@ -150,6 +150,6 @@ void usage ( void )
    fprintf ( stdout, " Optional:\n" );
    fprintf ( stdout, "  -r, --reverse             <int>     `1' to check for the reverse complement or\n"
                      "                                      `0' otherwise (default: 0).\n" );
-   fprintf ( stdout, "  -t, --threads             <int>     The number of threads to be used.\n");
+   fprintf ( stdout, "  -t, --threads             <int>     The number of threads to be used (default: 2).\n");
  }
 
