@@ -63,6 +63,8 @@ class Maw{
 
 double gettime( void );
 
+INT * LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA );
+
 int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
 
 void usage ( void );
@@ -112,8 +114,4 @@ INT Get_min_abs_w(
 INT GetMax(INT n, INT sigma, INT* LCP, bit_vector * max_loc);
 
 bool Next_pos(TStack * lifo_att, INT sigma, INT * Tx, INT * Tleft, INT * Tright, INT ** TSetletter, INT n, INT k, INT * LCP, TStack * lifo_pos, TStack * lifo_set, INT * SA, unsigned char * seq);
-
-
-INT * LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA );
-
 

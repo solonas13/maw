@@ -1,4 +1,4 @@
-pMAW: Minimal Absent Words (OpenMP flavour)
+pMAW: Minimal Absent Words in parallel (OpenMP)
 ===
 
 Copyright (C) 2014 Alice Heliou and Solon P. Pissis.

@@ -8,9 +8,9 @@ LFLAGS= -std=c++11 -O3 -DNDEBUG -I ./libsdsl/include/ -L ./libsdsl/lib/ -lsdsl -
  
 EXE=    maw
  
-SRC=    maw.cc input.cc stack.cc functions.cc lcp.cc
+SRC=    maw.cc input.cc stack.cc functions.cc
  
-HD=     mawdefs.h stack.h lcp.h Makefile.32-bit.gcc
+HD=     mawdefs.h stack.h Makefile.64-bit.gcc
  
 # 
 # No need to edit below this line 

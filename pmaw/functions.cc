@@ -35,7 +35,6 @@
 #include <unistd.h>
 
 #include "mawdefs.h"
-#include "lcp.h"
 
 #include <divsufsort.h>                                         // include header for suffix sort
 #include <divsufsort64.h>                                       // include header for suffix sort
@@ -57,6 +56,26 @@ double gettime( void )
     gettimeofday( &ttime , 0 );
     return ttime.tv_sec + ttime.tv_usec * 0.000001;
 };
+
+INT * LCParray ( unsigned char * text, INT n, INT * SA, INT * ISA )
+{
+	INT i=0, j=0;
+
+	INT * LCP = ( INT * ) calloc  ( (n+1), sizeof( INT ) );
+
+	LCP[0] = 0;
+	for ( i = 0; i < n; i++ ) // compute LCP[ISA[i]]
+		if ( ISA[i] != 0 )
+		{
+			if ( i == 0) j = 0;
+			else j = (LCP[ISA[i-1]] >= 2) ? LCP[ISA[i-1]]-1 : 0;
+			while ( text[i+j] == text[SA[ISA[i]-1]+j] )
+				j++;
+			LCP[ISA[i]] = j;
+		}
+    	LCP[n]=0;
+	return ( LCP );
+}
 
 INT compute_maw ( unsigned char * seq, unsigned char * seq_id, struct TSwitch sw )
 {
