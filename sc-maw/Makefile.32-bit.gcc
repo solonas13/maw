@@ -1,0 +1,40 @@
+MF=     Makefile.32-bit.gcc
+ 
+CC=     g++
+ 
+CFLAGS= -g -D_USE_32 -msse3 -fopenmp -O3 -fomit-frame-pointer -funroll-loops 
+ 
+LFLAGS= -std=c++11 -O3 -DNDEBUG -I ./libsdsl/include/ -L ./libsdsl/lib/ -lsdsl -ldivsufsort -ldivsufsort64 -Wl,-rpath=$(PWD)/libsdsl/lib
+ 
+EXE=    sc-maw
+ 
+SRC=    maw.cc input.cc stack.cc functions.cc
+ 
+HD=     mawdefs.h stack.h Makefile.32-bit.gcc
+ 
+# 
+# No need to edit below this line 
+# 
+ 
+.SUFFIXES: 
+.SUFFIXES: .cc .o 
+ 
+OBJ=    $(SRC:.cc=.o) 
+ 
+.cc.o: 
+	$(CC) $(CFLAGS)-c $(LFLAGS) $< 
+ 
+all:    $(EXE) 
+ 
+$(EXE): $(OBJ) 
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LFLAGS) 
+ 
+$(OBJ): $(MF) $(HD) 
+ 
+clean: 
+	rm -f $(OBJ) $(EXE) *~
+
+clean-all: 
+	rm -f $(OBJ) $(EXE) *~
+	rm -r libsdsl
+	rm -r sdsl-lite

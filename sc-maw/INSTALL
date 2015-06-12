@@ -1,0 +1,24 @@
+Pre-installation Instructions
+=============================
+
+   This installation requires the pre-installation of the cmake tool,
+a C++ compiler, and the libraries: libdivsufsort and sdsl.
+
+For Linux, you can install libraries libdivsufsort and sdsl via
+
+ $ ./pre-install.sh 
+
+Basic Instructions
+==================
+
+   The shell command `make -f Makefile.32-bit.gcc' should compile this 
+program for 32-bit integers. 
+   
+   The shell command `make -f Makefile.64-bit.gcc' should compile this 
+program for 64-bit integers. This requires double the amount of memory.
+
+After compilation the binary `maw' will be created in the working 
+directory, e.g. you may call it from this directory via
+
+ S ./sc-maw -a DNA -i ./data/2.fasta -o 2.fasta.out -k 2 -K 10
+
