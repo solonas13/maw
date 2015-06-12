@@ -630,8 +630,6 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, INT * SA, INT
 				memcpy( &maw[1], &seq[start], size );
 				maw[size + 1] = '\0';
 				xtuple . push_back(make_tuple(( INT ) maw[0], i, start, size ));
-				//if ( ! ( strstr ( maw, DEL_STR ) ) )
-				//	fprintf( out_fd,"%s\n", maw );
 
 		    	}
 		    	else if ( B2 )
@@ -642,8 +640,6 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, INT * SA, INT
 				memcpy( &maw[1], &seq[start], size );
 				maw[size + 1] = '\0';
 				xtuple . push_back(make_tuple(( INT ) maw[0], i, start, size ));
-				//if ( ! ( strstr ( maw, DEL_STR ) ) )
-				//	fprintf( out_fd,"%s\n", maw );
 		    	}
         	}
 
@@ -657,8 +653,7 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, INT * SA, INT
 	
 	( * Occ ) = ( TMaw * ) realloc ( ( * Occ ),   ( ( * NOcc ) ) * sizeof ( TMaw ) );
 	
-	unsigned int j = 0;
-	unsigned int current_size = 0;
+	INT j = 0;
 	for(vector<mytuple>::iterator iter = xtuple.begin(); iter != xtuple.end(); iter++)
 	{
 		( *Occ )[j] . letter = get<0>(*iter);
@@ -688,9 +683,9 @@ unsigned int maw_seq_comp ( unsigned char * X, TMaw * mawX, unsigned int * NmawX
 	INT * SA;
 	INT * LCP;
 	INT * invSA;
-	unsigned int m = strlen ( ( char * ) X );
-	unsigned int n = strlen ( ( char * ) Y );
-	unsigned int N = m + n;
+	INT m = strlen ( ( char * ) X );
+	INT n = strlen ( ( char * ) Y );
+	INT N = m + n;
 	
 	XY = ( unsigned char * ) malloc( ( N + 1 ) * sizeof( unsigned char ) );
 	
@@ -751,8 +746,7 @@ unsigned int maw_seq_comp ( unsigned char * X, TMaw * mawX, unsigned int * NmawX
         
         int_vector<> v( N , 0 ); // create a vector of length n and initialize it with 0s
 
-//	#pragma omp parallel for
-	for ( int i = 0; i < N; i ++ )
+	for ( INT i = 0; i < N; i ++ )
 	{
 		v[i] = LCP[i];
 	}
@@ -849,18 +843,18 @@ unsigned int maw_seq_comp ( unsigned char * X, TMaw * mawX, unsigned int * NmawX
 /* Edit distance */
 unsigned int edit_distance ( unsigned char * x, unsigned char * y, double * XY_distance )
 {
-	unsigned int i, j;
-	unsigned int sub = 1;
-	unsigned int gap = 1;
+	INT i, j;
+	INT sub = 1;
+	INT gap = 1;
 
-	unsigned int m = strlen ( ( char * ) x );
-	unsigned int n = strlen ( ( char * ) y );
+	INT m = strlen ( ( char * ) x );
+	INT n = strlen ( ( char * ) y );
 
-	unsigned int ** D;
-	D = ( unsigned int ** ) calloc ( m + 1, sizeof ( unsigned int * ) );
+	INT ** D;
+	D = ( INT ** ) calloc ( m + 1, sizeof ( INT * ) );
 	for ( i = 0; i < m + 1; i++ )
     	{
-      		D[i] = ( unsigned int * ) calloc ( n + 1, sizeof ( unsigned int ) );
+      		D[i] = ( INT * ) calloc ( n + 1, sizeof ( INT ) );
     	}
 	
 	for ( i = 1; i < m + 1; i++ )
