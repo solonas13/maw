@@ -128,12 +128,12 @@ Usage of the tool
 */
 void usage ( void )
  {
-   fprintf ( stdout, " Usage: maw <options>\n" );
+   fprintf ( stdout, " Usage: sc-maw <options>\n" );
    fprintf ( stdout, " Standard (Mandatory):\n" );
    fprintf ( stdout, "  -a, --alphabet            <str>     `DNA' for nucleotide  sequences or `PROT'\n"
                      "                                      for protein  sequences. \n" );
    fprintf ( stdout, "  -i, --input-file          <str>     (Multi)FASTA input filename.\n" );
-   fprintf ( stdout, "  -o, --output-file         <str>     Output filename.\n" );
+   fprintf ( stdout, "  -o, --output-file         <str>     Output filename with the distance matrix.\n" );
    fprintf ( stdout, "  -k, --min-length          <int>     The min length for maws.\n");
    fprintf ( stdout, "  -K, --max-length          <int>     The max length for maws.\n");
    fprintf ( stdout, " Optional:\n" );
