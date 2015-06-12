@@ -56,25 +56,19 @@ class Maw{
 	public :
  	char letter;
 	int start;
-	int length;
+	int end;
 
-	Maw(char letter, int start, int length);
+	Maw(char letter, int start, int end);
 };
 
+unsigned int LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA, INT * LCP );
 double gettime( void );
-
 int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
-
 void usage ( void );
-
 INT RevComStr ( unsigned char * str, unsigned char * str2, INT iLen );
-
 unsigned char Mapping( INT a );
-
 INT RevMapping ( unsigned char b );
-
 INT compute_maw ( unsigned char * seq, unsigned char * seq_id, struct TSwitch sw );
-
 INT Empty_stack(
                         TStack * lifo_att,
                         TStack * lifo_pos,
@@ -85,12 +79,12 @@ INT Empty_stack(
                         INT k,
                         INT K,
                         unsigned char* seq,
+			std::stringstream & buff_maw,
                         INT * Tx,
                         INT * Tleft,
                         INT * Tright,
                         INT * LCP,
-                        INT * SA,
-	std::list<Maw> * Table);
+                        INT * SA);
 
 
 INT Get_min_abs_w(
@@ -110,10 +104,4 @@ INT Get_min_abs_w(
         INT threads );
 
 INT GetMax(INT n, INT sigma, INT* LCP, bit_vector * max_loc);
-
 bool Next_pos(TStack * lifo_att, INT sigma, INT * Tx, INT * Tleft, INT * Tright, INT ** TSetletter, INT n, INT k, INT * LCP, TStack * lifo_pos, TStack * lifo_set, INT * SA, unsigned char * seq);
-
-
-INT * LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA );
-
-

@@ -27,15 +27,12 @@
 #include <assert.h>
 #include <sys/time.h>
 
-#include <list>
-
 #include <omp.h>
 
 #include <sys/resource.h>
 #include <unistd.h>
 
 #include "mawdefs.h"
-#include "lcp.h"
 
 #include <divsufsort.h>                                         // include header for suffix sort
 #include <divsufsort64.h>                                       // include header for suffix sort
@@ -47,16 +44,30 @@
 using namespace sdsl;
 using namespace std;
 
-
-Maw::Maw(char letter, int start, int length)
-{ this->letter=letter; this->start=start; this->length=length;}
-
 double gettime( void )
 {
     struct timeval ttime;
     gettimeofday( &ttime , 0 );
     return ttime.tv_sec + ttime.tv_usec * 0.000001;
 };
+
+INT * LCParray ( unsigned char * text, INT n, INT * SA, INT * ISA )
+{
+	INT i=0, j=0;
+	INT * LCP = ( INT * ) calloc ( (n+1), sizeof( INT ) );
+	LCP[0] = 0;
+	for ( i = 0; i < n; i++ ) // compute LCP[ISA[i]]
+		if ( ISA[i] != 0 )
+		{
+			if ( i == 0) j = 0;
+			else j = (LCP[ISA[i-1]] >= 2) ? LCP[ISA[i-1]]-1 : 0;
+			while ( text[i+j] == text[SA[ISA[i]-1]+j] )
+			j++;
+			LCP[ISA[i]] = j;
+		}
+	LCP[n]=0;
+	return ( LCP );
+}
 
 INT compute_maw ( unsigned char * seq, unsigned char * seq_id, struct TSwitch sw )
 {
@@ -382,7 +393,7 @@ INT Get_min_abs_w(
     INT lcpmax=0;
 
     INT c=r;
-    int T=l;
+    int T=0;
     INT * Count= ( INT * ) calloc( (size_t) l, sizeof( INT ) );
     if( ( Count == NULL) )
     {
@@ -392,7 +403,7 @@ INT Get_min_abs_w(
     
     for (INT i=0; i<n; i++)
     {
-        if (LCP[i]<l && seq[SA[i]+LCP[i]]!='$'){Count[LCP[i]]+=1;}
+        if (LCP[i]<l && ( (i>0 && i<n-1 &&seq[SA[i]+LCP[i+1]]!='$') ||i==0 || i==n-1)){Count[LCP[i]]+=1;}
 	    if (LCP[i]>lcpmax){lcpmax=LCP[i];}
     }
 
@@ -407,8 +418,9 @@ INT Get_min_abs_w(
     INT V=V2-1;
     for (INT i=0; i<l; i++)
     {
-        if (Count[i]<V+1+r){T=i;break;}
-        V=V*V2;
+        if (Count[i]<V+1){T=i;break;}
+	V=V*V2;
+	
     }
     free ( Count);
 #ifdef _LOG_WRITE
@@ -453,14 +465,17 @@ INT Get_min_abs_w(
     char * tmp;
     tmp = ( char * ) calloc( (size_t) 100, sizeof( char ) );
 
+    
+    std::ofstream * file_maw = new std::ofstream[nb_threads+1];
     sprintf( tmp, "%s", fd_maw);
-    std::ofstream file_maw;
-    //file_maw.open ( tmp );
-    file_maw . open ( tmp, std::fstream::out | std::fstream::app );		
+    file_maw[nb_threads] . open ( tmp, std::fstream::out | std::fstream::app );
+    for (int i=0; i< nb_threads; i++)
+    {
+        sprintf( tmp, "%s.%d", fd_maw,i);
+        file_maw[i] . open ( tmp, std::fstream::out | std::fstream::app );
+    }
     free(tmp);
-    file_maw << ">"<< seq_id << "\n";
-
-    list<Maw> *  Table= new list<Maw> [nb_threads];
+    file_maw[nb_threads] << ">"<< seq_id << "\n";
     double starttime=omp_get_wtime();
     #pragma omp parallel for
     for (INT z=0; z<y; z++)
@@ -472,13 +487,13 @@ INT Get_min_abs_w(
         char * maw;
         INT * Setletter;
         INT * Setletter1;
-        int id=omp_get_thread_num();
-
+        int id = omp_get_thread_num();
+	std::stringstream s_maw;
         StackNew (&lifo_pos, sizeof(INT));
         StackNew (&lifo_set, sizeof(INT)*(sigma+2));
         StackNew (&lifo_att, sizeof(INT));
         StackNew (&lifo_mem_pos, sizeof(INT));
-        maw = ( char * ) calloc( ( (size_t)(K+1) ) , sizeof( char ) );
+        maw = ( char * ) calloc( ( K + 1 ) , sizeof( char ) );
         INT x, left;
         INT right;
         INT pos=-1;
@@ -549,7 +564,7 @@ INT Get_min_abs_w(
                     while(lcp<lpos && pos+1>0)
                     {
 
-                        Empty_stack(&lifo_att, &lifo_pos, &lifo_set, &Setletter, sigma,n,k,K,seq, &x, &left, &right, LCP,SA,Table);
+                        Empty_stack(&lifo_att, &lifo_pos, &lifo_set, &Setletter, sigma,n,k,K,seq,s_maw, &x, &left, &right, LCP,SA);
 
                         Setletter[sigma+1]=LCP[x];
                         StackTop(&lifo_pos, &pos);
@@ -622,7 +637,7 @@ INT Get_min_abs_w(
                                     if ( ! ( strstr ( maw, "$" ) ) )
                                     {
 #ifdef _LOG_OUT
-                                        Table[id].push_back(Maw(maw[0],SA[x],lcp+1));
+				      s_maw << maw << "\n";
 #endif
                                     }
                                 }
@@ -638,7 +653,7 @@ INT Get_min_abs_w(
                             if ( ! ( strstr ( maw, "$" ) ))
                             {
 #ifdef _LOG_OUT
-                                Table[id].push_back(Maw(maw[0],SA[x-1],lcp+1));
+			      s_maw << maw << "\n";
 #endif
                             }
                         }
@@ -654,7 +669,7 @@ INT Get_min_abs_w(
                             if ( ! ( strstr ( maw, "$" ) ))
                             {
 #ifdef _LOG_OUT
-                                Table[id].push_back(Maw(maw[0],SA[x],lcp+1));				    
+			      s_maw << maw << "\n";
 #endif
                             }
                         }
@@ -671,7 +686,7 @@ INT Get_min_abs_w(
                                     if ( ! ( strstr ( maw, "$" ) ))
                                     {
 #ifdef _LOG_OUT
-                                        Table[id].push_back(Maw(maw[0],SA[x-1],lcp+1));
+				      s_maw << maw << "\n";
 #endif
                                     }
                                 }
@@ -770,7 +785,7 @@ INT Get_min_abs_w(
                 StackPop(&lifo_mem_pos, &pos);
                 StackPush(&lifo_pos,&pos);
             }
-            Empty_stack(&lifo_att, &lifo_pos, &lifo_set, &Setletter, sigma,n,k,K,seq, &x, &left, &right, LCP,SA,Table);
+            Empty_stack(&lifo_att, &lifo_pos, &lifo_set, &Setletter, sigma,n,k,K,seq,s_maw, &x, &left, &right, LCP,SA);
             StackTop(&lifo_pos, &pos);
             if (pos==-1){lpos=-1;}
             else{lpos=LCP[pos];}
@@ -823,30 +838,38 @@ INT Get_min_abs_w(
 	Setletter1=NULL;
 	maw=NULL;
 
-    }
+	
+	#ifdef _LOG_OUT
+        std::string string_maw = s_maw.str();
+        file_maw[id]<<string_maw.c_str();
+        s_maw<<"\n";
+        s_maw.clear();
+        string_maw.clear();
+	#endif 
 
+    }
     double endtime=omp_get_wtime();
-    free (Cut);
-    char* mawb = ( char * ) calloc( ( (size_t)(K) ) , sizeof( char ) );
-    int nb_maw=0;
+	#ifdef _LOG_OUT
+    char * tmpout;
+    tmpout = ( char * ) calloc( (size_t) 100, sizeof( char ) );
+    std::ifstream * file_maw_out = new std::ifstream[nb_threads];
     for (int i=0; i< nb_threads; i++)
     {
-	while (!Table[i].empty())
-	{
-	   file_maw<<Table[i].front().letter;
-	   memcpy( &mawb[0], &seq[Table[i].front().start], Table[i].front().length );
-           mawb[Table[i].front().length ] = '\0';
-	   file_maw << mawb<< "\n";
-           Table[i].pop_front();
-	   nb_maw++;
-	}
+        file_maw[i].close();
+        sprintf( tmpout, "%s.%d", fd_maw,i);
+        file_maw_out[i] . open ( tmp, std::fstream::in | std::fstream::app );
+        file_maw[nb_threads] << file_maw_out[i].rdbuf();
+        remove(tmpout);
     }
-    delete[] Table;
-    file_maw << "\n";
-    file_maw.close();
-    free(mawb);
+    delete[] file_maw_out;
+    free(tmpout);
+	#endif 
+    file_maw[nb_threads].close();
+    delete[] file_maw;
+    
+    free (Cut);
+
     #ifdef _LOG_WRITE
-    std::cout << nb_maw << std::endl;
     printf("Computation time %.6g \n",endtime-starttime);
     #endif 
     return ( 0 );
@@ -863,12 +886,12 @@ INT Empty_stack(
                         INT k,
                         INT K,
                         unsigned char* seq,
+                        std:: stringstream& buff_maw,
                         INT * Tx,
                         INT * Tleft,
                         INT * Tright,
                         INT * LCP,
-                        INT *SA,
-			list<Maw> * Table)
+                        INT *SA)
 {
     INT * Setletterbis;
     INT * Setletter1;
@@ -881,9 +904,6 @@ INT Empty_stack(
     StackNew (&lifo_mem_set, sizeof(INT)*(sigma+2));
     StackNew (&lifo_mem_pos, sizeof(INT));
     INT pos, pos2, lpos,pos3;
-
-    int id=omp_get_thread_num();
-
 
     for (INT i=0; i< sigma+2; i++)
     {
@@ -900,7 +920,7 @@ INT Empty_stack(
     rightint=right;
 
     char * maw;
-    maw = ( char * ) calloc( ((size_t)( K + 1 )) , sizeof( char ) );
+    maw = ( char * ) calloc( ( K + 1 ) , sizeof( char ) );
     if( ( maw == NULL) )
     {
         fprintf(stderr, " Error: Cannot allocate memory.\n" );
@@ -1098,7 +1118,7 @@ if (lpos+2>=k&& lpos+2<=K){
                     if ( ! ( strstr ( maw, "$" ) ))
                     {
 #ifdef _LOG_OUT
-Table[id].push_back(Maw(maw[0],SA[pos-1],lpos+1));
+		      buff_maw << maw << "\n";
 #endif
                     }
                 }
@@ -1123,14 +1143,14 @@ Table[id].push_back(Maw(maw[0],SA[pos-1],lpos+1));
                     if ( ! ( strstr ( maw, "$" ) ))
                     {
 #ifdef _LOG_OUT
-Table[id].push_back(Maw(maw[0],SA[pos],lpos+1));
+                       buff_maw << maw << "\n";
 #endif
                     }
                 }
             }
         }
 
-        if (pos>=0 &&pos<n && SA[pos]>0 && RevMapping(seq[SA[pos]-1])>=0)
+        if (pos>=0 && pos<n && SA[pos]>0 && RevMapping(seq[SA[pos]-1])>=0)
         {
             Setletter1[RevMapping(seq[SA[pos]-1])+1]=1;
         }
