@@ -370,6 +370,8 @@ unsigned int GetBefore (
         for ( INT i = 0; i < sigma; i++)
                 interval[i]=bit_vector(hm,0);
 
+	interval[RevMapping(seq[nc- 1])][0]=1;
+
         // First pass : top-down
         for ( INT i = 0; i < n; i++ )
         {

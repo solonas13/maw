@@ -946,6 +946,9 @@ INT Empty_stack(
         Setletterbis[i]=Setletter[i];
     }
 
+    if (lpos==0)
+        Setletterbis[RevMapping(seq[n-1])+1]=1;
+
     if (lpos+2>=k){
         StackPop(&lifo_set[0], &*Setletter1);
         if (pos<x){rightint=x;}
