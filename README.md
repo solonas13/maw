@@ -19,4 +19,4 @@ C. Barton, A. Heliou, L. Mouchard, S. P. Pissis, "Engineering the Computation of
 
 When publishing work that is based on the results from scMAW please cite:
 
-M. Crochemore, G. Fici, R. Mercas, S. P. Pissis, " Linear-Time Sequence Comparison Using Minimal Absent Words & Applications", 2015. (http://arxiv.org/abs/1506.04917)
+M. Crochemore, G. Fici, R. Mercas, S. P. Pissis, "Linear-Time Sequence Comparison Using Minimal Absent Words & Applications", 2015. (http://arxiv.org/abs/1506.04917)
