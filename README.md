@@ -19,4 +19,4 @@ To compile scMAW, please change to directory `sc-maw' and follow the instruction
 
 When publishing work that is based on the results from scMAW please cite:
 
-M. Crochemore, G. Fici, R. Mercas, S. P. Pissis, "Linear-Time Sequence Comparison Using Minimal Absent Words & Applications", 2015. (http://arxiv.org/abs/1506.04917)
+M. Crochemore, G. Fici, R. Mercas, S. P. Pissis, "Linear-Time Sequence Comparison Using Minimal Absent Words & Applications", in LATIN 2016: Theoretical Informatics - 12th Latin American Symposium, Springer Berlin Heidelberg, 2016. (in press)
