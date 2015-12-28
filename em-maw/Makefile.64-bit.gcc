@@ -1,0 +1,43 @@
+MF=     Makefile.64-bit.gcc
+ 
+CC=     g++
+ 
+CFLAGS= -g -D_USE_64 -msse3 -O3 -fomit-frame-pointer -funroll-loops 
+ 
+LFLAGS= -std=c++11 -O3 -DNDEBUG -I ./libsdsl/include/ -L ./libsdsl/lib/ -lsdsl -ldivsufsort -ldivsufsort64 -Wl,-rpath=$(PWD)/libsdsl/lib
+ 
+EXE=    em-maw
+ 
+SRC=    maw.cc input.cc functions.cc utils.cc stackinfile.cc
+ 
+HD=     mawdefs.h Makefile.64-bit.gcc utils.h stackinfile.h stream.h triplet.h
+ 
+# 
+# No need to edit below this line 
+# 
+ 
+.SUFFIXES: 
+.SUFFIXES: .cc .o 
+ 
+OBJ=    $(SRC:.cc=.o) 
+ 
+.cc.o: 
+	$(CC) $(CFLAGS)-c $(LFLAGS) $< 
+ 
+all:    $(EXE) 
+ 
+$(EXE): $(OBJ) 
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LFLAGS) 
+ 
+$(OBJ): $(MF) $(HD) 
+ 
+clean: 
+	rm -f $(OBJ) $(EXE) *~
+
+clean-all: 
+	rm -f $(OBJ) $(EXE) *~
+	rm -r libsdsl
+	rm -r sdsl-lite
+	rm -r tmpdata
+	rm -r pSAscan-0.1.0
+	rm -r LCPscan-0.1.0

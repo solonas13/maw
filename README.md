@@ -20,3 +20,5 @@ To compile scMAW, please change to directory `sc-maw' and follow the instruction
 When publishing work that is based on the results from scMAW please cite:
 
 M. Crochemore, G. Fici, R. Mercas, S. P. Pissis, "Linear-Time Sequence Comparison Using Minimal Absent Words & Applications", in LATIN 2016: Theoretical Informatics - 12th Latin American Symposium, Springer Berlin Heidelberg, 2016. (in press)
+
+To compile emMAW (External Memory), please change to directory `em-maw' and follow the instructions given in file INSTALL.
