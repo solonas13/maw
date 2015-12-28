@@ -1,4 +1,4 @@
-scMAW: Sequence Comparison with Minimal Absent Words
+emMAW: Computing Minimal Absent Words in External Memory
 ===
 
 Copyright (C) 2015 Alice Heliou and Solon P. Pissis.
