@@ -84,6 +84,11 @@ struct stream_reader {
     refill();
   }
 
+  inline bool goto_pos(INT offset){
+    m_filled=0;
+    refill(offset);
+  }
+
   inline bool goto_end(INT n_elems){
     std::fseek(m_file, 0, SEEK_END);
     m_offset=n_elems;
@@ -125,8 +130,10 @@ struct stream_reader {
  private:
   INT refill(long new_offset = -1) {
     if (new_offset != -1) {
-      m_offset = new_offset;
-      std::fseek(m_file, m_offset, SEEK_SET);
+      std::fseek(m_file, new_offset, SEEK_SET);
+      m_offset=new_offset/sizeof(T);
+      if (new_offset != m_offset * sizeof(T))
+	std::cout<<" il y a un pti pb ici"<<std::endl;
     } else {
       m_offset += m_filled;
     }
@@ -173,10 +180,18 @@ struct stream_reader {
 
 template<typename T>
 struct stream_writer {
-  stream_writer(std::string fname, INT bufsize = (4 << 20))
+  stream_writer(std::string fname, INT bufsize = (4 << 20), int a=0)
       : m_bufelems(bufsize / sizeof(T)),
         m_filled(0) {
-    m_file = utils::file_open(fname.c_str(), "w");
+    if (a==0)
+    {	m_file = utils::file_open(fname.c_str(), "w");}
+    else
+    {
+	if ( ! ( m_file = fopen ( fname.c_str(), "a") ) )
+        {
+                fprintf ( stderr, " Error: Cannot open file %s!\n", fname.c_str() );
+        }
+     }
      m_buffer =(T*) malloc(m_bufelems*sizeof(T));
 
   }
@@ -191,6 +206,11 @@ struct stream_writer {
     m_buffer[m_filled++] = x;
     if (m_filled == m_bufelems) flush();
   }
+
+  inline INT getpos(){
+	flush();
+	return ftell(m_file);
+ }
 
  private:
   void flush() {

@@ -51,63 +51,11 @@ double gettime( void )
 };
 
 
-static void swap (SApairs * a, INT i, INT j)
-{
-    uint40 tmp= a[i].pos; uint40 tmp2=a[i].SApos;
-    a[i].pos=a[j].pos; a[i].SApos=a[j].SApos;
-    a[j].pos=tmp; a[j].SApos=tmp2;
-}
-
-static INT partition( SApairs * a, INT l, INT r )
-{
-    uint40 p = a[l].SApos;
-    INT m = l;
-    for (INT i=l+1; i<r; i++)
-    {
-        if (a[i].SApos<p) swap(a,i,++m);
-    }
-    swap(a,l,m);
-    return m;
-}
-
-static void quickrec(SApairs * a, INT l, INT r)
-{
-    if (l>=r-1) return;
-    INT m=partition(a,l,r);
-    quickrec(a,l,m);
-    quickrec(a,m+1,r);
-}
-
-static void swap (BWTpairs * a, INT i, INT j)
-{
-    INT tmp= a[i].pos; unsigned char tmp2=a[i].bwt;
-    a[i].pos=a[j].pos; a[i].bwt=a[j].bwt;
-    a[j].pos=tmp; a[j].bwt=tmp2;
-}
-
-static INT partition( BWTpairs * a, INT l, INT r )
-{
-    INT p = a[l].pos;
-    INT m = l;
-    for (INT i=l+1; i<r; i++)
-    {
-        if (a[i].pos<p) swap(a,i,++m);
-    }
-    swap(a,l,m);
-    return m;
-}
-
-static void quickrec(BWTpairs * a, INT l, INT r)
-{
-    if (l>=r-1) return;
-    INT m=partition(a,l,r);
-    quickrec(a,l,m);
-    quickrec(a,m+1,r);
-}
+bool BWTcompare(BWTpairs l, BWTpairs r){return l.pos<r.pos;}
+bool SAcompare(SApairs l, SApairs r ){return l.SApos<r.SApos;}
 
 unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long ram_use, INT n )
 {
-
     if (ram_use > 4*sizeof(uint40)+n*sizeof(unsigned char))
     {
 	FILE *fseq = fopen(seq_fname, "r");
@@ -134,7 +82,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
 	delete(fBWT);
 	delete [] Seq;
     } 
-    else
+    else 
     {
 	FILE * fSA = fopen(sa_fname, "r");
 	FILE * fBWT = fopen(bwt_fname, "w");
@@ -148,6 +96,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
         unsigned char c;
     	int nbloop=n/elems +1;
     	INT sum=0;
+	bool b=false;
     	for (INT i=0; i<nbloop; i++)
     	{
         	if (i==nbloop-1)
@@ -155,44 +104,46 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
             		elems=n-i*elems;
         	}
         	int n_read=fread(SAvalue, sizeof(uint40), elems, fSA);
-            if (n_read!=elems)
-            {
-                std::cout<<"Problem while reading the sequence during BWT computation"<<std::endl;
-            }
+                if (n_read!=elems)
+                {
+                    std::cout<<"Problem while reading the sequence during BWT computation"<<std::endl;
+                }
         	for (INT j=0; j<elems; j++)
         	{
             		sapairs[j].pos=j;
             		sapairs[j].SApos=SAvalue[j];
         	}
-       		quickrec(sapairs,0,elems);
+       		std::sort(sapairs,sapairs+elems,SAcompare);
         	pos=0;
-            fseq->goto_set();
+                fseq->goto_set();
         	for (INT j=0; j<elems; j++)
         	{
 	    		if (sapairs[j].SApos==0)
 	    		{
-				bwtpairs[j].pos=0;
+				bwtpairs[j].pos=sapairs[j].pos;
 				bwtpairs[j].bwt='$';
 				sum++;
 	    		}
-	    		while (pos<sapairs[j].SApos)
-	    		{
+			else
+			{
+	    	  	    while (pos<sapairs[j].SApos)
+	    		    {
             			c=fseq->read();
 				pos++;
-	    		}
-           		if (pos==sapairs[j].SApos)
-            		{
+	    		    }
+           		    if (pos==sapairs[j].SApos)
+            		    {
 	        		bwtpairs[j].pos=sapairs[j].pos;
                 		bwtpairs[j].bwt=c;
 				sum++;
-            		}
+            		    }
+			}
         	}
-        	quickrec(bwtpairs,0,elems);
+        	std::sort(bwtpairs, bwtpairs+elems, BWTcompare);
        		for (int j=0; j<elems; j++)
         	{
 	    		BWTvalue[j]=bwtpairs[j].bwt;
         	}
-        
        	 	fwrite(BWTvalue, sizeof(unsigned char), elems, fBWT);
 	}
 	delete[] SAvalue;
@@ -215,12 +166,12 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
 
     long ram_use =sw.ram_use;    
     char str[100] ;
-    sprintf(str, "%s_%s_BWT.bwt5",sw.output_filename, file_id);
+    sprintf(str, "%s_%s_r%d_BWT.bwt5",sw.input_filename, file_id, sw.r);
 
     stream_reader<unsigned char> *fBWT = new stream_reader<unsigned char>(str,ram_use/6);
-    sprintf(str, "%s_%s_SA.sa5",sw.output_filename, file_id);
+    sprintf(str, "%s_%s_r%d_SA.sa5",sw.input_filename, file_id,sw.r);
     stream_reader<uint40> *fSA = new stream_reader<uint40>(str,ram_use/6);
-    sprintf(str, "%s_%s_LCP.lcp5",sw.output_filename, file_id);
+    sprintf(str, "%s_%s_r%d_LCP.lcp5",sw.input_filename, file_id,sw.r);
     stream_reader<uint40> *fLCP = new stream_reader<uint40>(str,ram_use/6);
     
     char Before_fname[100];
@@ -236,7 +187,7 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
     remove(Beforelcp_fname);
     char fout[100];
     sprintf(fout, "%s_compressed.txt", sw.output_filename);
-    GetMaws( seq_id, fSA, n, sigma, fLCP, Before_fname2, Beforelcp_fname2, sw . k, sw . K, sw . output_filename,fout, sw.r, ram_use/2 );
+    GetMaws( seq_id, fSA, n, sigma, fLCP, Before_fname2, Beforelcp_fname2, sw . k, sw . K, sw . output_filename,fout, sw.r,sw.f, ram_use/2 );
     remove(Before_fname2);
     remove(Beforelcp_fname2);
     delete ( fSA );
@@ -808,15 +759,12 @@ unsigned int GetBefore (
 }
 
 
-unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT n, int sigma, stream_reader<uint40>  * fLCP, char * Before_fname, char * Beforelcp_fname, unsigned int k, unsigned int K, char * out_file,char * out_file_compressed, int r, long ram_use )
+unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT n, int sigma, stream_reader<uint40>  * fLCP, char * Before_fname, char * Beforelcp_fname, unsigned int k, unsigned int K, char * out_file,char * out_file_compressed, int r,int f, long ram_use )
 {
     FILE * out_fd;
-	
-
-	// compute a bitvector that contains a `1', if an identical row has already been seen => to avoid duplicates.
     int width_to_print=floor(log10(n))+2;
-	INT lcp = 0;
-	INT mem;
+    INT lcp = 0;
+    INT mem;
     
     fLCP->goto_set();
     int * LCPmem= new int [2];
@@ -826,6 +774,8 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
     TStackinfile lifo_lcp;
     StackNew(&lifo_lcp, sizeof(INT), "streambis_stack.txt", ram_use/2);
     StackPush(&lifo_lcp,&lcp);
+
+ //we compute a bitvector that contains a `1', if an identical row has already been seen => to avoid duplicates.
     long ftell_mem;
     for ( INT i = 0; i < n; i++ )
     {
@@ -856,17 +806,16 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
    stream_reader<int> * fmemr = new stream_reader<int>("streambis_mem.txt", ram_use/4);
    stream_reader<char> * fBefore = new stream_reader<char> (Before_fname, ram_use/4);
    stream_reader<char> * fBeforelcp = new stream_reader <char> (Beforelcp_fname, ram_use/4);
-   stream_writer<triplet> * fout= new stream_writer<triplet> (out_file_compressed, ram_use/4);
+   stream_writer<triplet> * fout= new stream_writer<triplet> (out_file_compressed, ram_use/4,1);
+   if (fout==NULL)
+	return 1;
    fBefore->goto_end(2*n+1);
    fBeforelcp->goto_end(2*n+1); 
-	if ( ! ( out_fd = fopen ( out_file, "a") ) )
-	{
-		fprintf ( stderr, " Error: Cannot open file %s!\n", out_file );
-		return ( 1 );
-	}
-	/* Print the header */
-	fprintf ( out_fd, ">%s\n", ( char * ) seq_id );
-
+	/* Print a separator */
+    triplet T;
+    changetriplet(&T,'>',0,0);
+    fout->write(T);
+    INT offset_out=fout->getpos();
     bitset<8> * Beforemem = new bitset<8> [2];
     if( ( Beforemem == NULL) )
     {
@@ -889,10 +838,9 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
     Beforelcpmem[0]=bitset<8>(fBeforelcp->read_reverse());
     LCPmem[1]=fLCP->read();
     mem=fmemr->read();
-    triplet T;
     INT nbmaw=0;
-	for ( INT i = 0; i < n; i++ )
-    	{
+    for ( INT i = 0; i < n; i++ )
+    {
    	    Beforemem[0]=bitset<8>(fBefore->read_reverse());
             Beforelcpmem[0]=bitset<8>(fBeforelcp->read_reverse());
             Beforemem[1]=bitset<8>(fBefore->read_reverse());
@@ -959,33 +907,45 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
  	remove("streambis_mem.txt");
 
 	cout<< nbmaw << " minimal absent words have been found."<<endl;
-	stream_reader<triplet> * fout_r= new stream_reader<triplet> (out_file_compressed, ram_use/2);
-	stream_reader<unsigned char> * fseq= new stream_reader<unsigned char> ("seq.txt",ram_use/2);
-        unsigned char c=' ';
-	char * maw= new char[K+1];
-	while (! fout_r->empty())
-	{	
-	    T=fout_r->read();
-		maw[0]=T.c;
-	    for (int i=0; i<T.size; i++)
-	    {
-		c=fseq->getValue(T.start+i);
-		maw[1+i]=c;
-	    }
-		maw[T.size+1]='\0';
-	    fprintf(out_fd,"%s\n",maw);
 
-	    
-	}
-	cout <<"maw printed"<<endl;
-	delete [] maw;
-	delete(fout_r);
-	delete(fseq);
-	fprintf( out_fd, "\n" );
-	if ( fclose ( out_fd ) )
+	if (f==1)
 	{
+	   if ( ! ( out_fd = fopen ( out_file, "a") ) )
+	   {
+		fprintf ( stderr, " Error: Cannot open file %s!\n", out_file );
+		return ( 1 );
+	   }
+	    fprintf(out_fd,">%s\n",(char *) seq_id); 
+	    stream_reader<triplet> * fout_r= new stream_reader<triplet> (out_file_compressed, ram_use/2);
+	    fout_r->goto_pos(offset_out);
+	    stream_reader<unsigned char> * fseq= new stream_reader<unsigned char> ("seq.txt",ram_use/2);
+            unsigned char c=' ';
+	    char * maw= new char[K+1];
+	    int j=-1;
+	    while (! fout_r->empty())
+	    {	
+		j++;
+	        T=fout_r->read();
+		maw[0]=T.c;
+	        for (int i=0; i<T.size; i++)
+	        {
+		    c=fseq->getValue(T.start+i);
+	 	    maw[1+i]=c;
+	        }
+		maw[T.size+1]='\0';
+	        fprintf(out_fd,"%s\n",maw);
+	    }
+	    cout <<"maw printed"<<endl;
+	    delete [] maw;
+	    delete(fout_r);
+	    remove(out_file_compressed);
+	    delete(fseq);
+	    fprintf( out_fd, "\n" );
+	    if ( fclose ( out_fd ) )
+	    {
 		fprintf( stderr, " Error: file close error!\n");
 		return ( 1 );
-	}
+	    }
+        }
 	return ( 1 );
 }

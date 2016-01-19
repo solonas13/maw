@@ -33,6 +33,7 @@ static struct option long_options[] =
    { "max-length",              required_argument, NULL, 'K' },
    { "reverse",                 required_argument, NULL, 'r' },
    { "compute-file",            required_argument, NULL, 'c' },
+   { "output-format",		required_argument, NULL, 'f' },
    { "memory usage",		required_argument, NULL, 'm' },
    { "help",                    no_argument,       NULL, 'h' },
    { NULL,                      0,                 NULL, 0   }
@@ -58,10 +59,11 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
    sw -> K                              = 10;
    sw -> r                              = 0;
    sw -> c                              = 1;
+   sw -> f				= 1;
    sw -> ram_use			= 3072L<<20;
    args = 0;
 
-   while ( ( opt = getopt_long ( argc, argv, "a:i:o:k:K:r:c:m:h", long_options, &oi ) ) != - 1 )
+   while ( ( opt = getopt_long ( argc, argv, "a:i:o:k:K:r:c:f:m:h", long_options, &oi ) ) != - 1 )
     {
       switch ( opt )
        {
@@ -121,8 +123,17 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
             sw -> c = val;
             break;
 
+	case 'f': 
+            val = strtol ( optarg, &ep, 10 ); 
+            if ( optarg == ep ) 
+            { 
+                return ( 0 ); 
+            } 
+            sw -> f = val; 
+            break;
+
          case 'm':
-           val = strtol ( optarg, &ep, 10 )<<10;
+           val = strtol ( optarg, &ep, 10 )<<20;
            if ( optarg == ep )
             {
               return ( 0 );
@@ -166,5 +177,11 @@ void usage ( void )
    fprintf ( stdout, "  -m, --mem=LIMIT           <int>     Limit RAM usage to LIMIT KB (default: 3072MiB)\n" );
    fprintf ( stdout, "  -c, --compute-file        <int>     `1' to compute files for SA, LCP, BWT or \n"
                      "                                      `0' otherwise (default: 1).\n" );
+   fprintf ( stdout, "  -f, --output-format       <int>     `1' to output the sequence of maws or, \n"
+                     "                                      `0' to output a compressed representation:\n"
+                     "                                       a list of triplets (letter, position, length),\n"
+		     "                                       that is, the first letter of the maw, the starting \n" 
+                     "                                       position of an occurrence of its longest suffix \n" 
+                     "                                       and the length of its longest suffix (default: 1).\n" );
  }
 

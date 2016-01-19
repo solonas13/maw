@@ -109,26 +109,28 @@ int main(int argc, char **argv)
 		{
 			unsigned int max_alloc_seq_id = 0;
 			unsigned int seq_id_len = 0;
+			unsigned int seq_idbis_len=0;
 			bool space=false;
 			while ( ( c = fgetc( in_fd ) ) != EOF && c != '\n' )
 			{
 				if ( seq_id_len >= max_alloc_seq_id )
 				{
 					seq_id = ( unsigned char * ) realloc ( seq_id,   ( max_alloc_seq_id + ALLOC_SIZE ) * sizeof ( unsigned char ) );
-					seq_idbis = ( unsigned char * ) realloc ( seq_idbis,   ( max_alloc_seq_id + ALLOC_SIZE ) * sizeof ( unsigned char ) );
+					if (!space)
+						seq_idbis = ( unsigned char * ) realloc ( seq_idbis,   ( max_alloc_seq_id + ALLOC_SIZE ) * sizeof ( unsigned char ) );
 					max_alloc_seq_id += ALLOC_SIZE;
 				}
 				if (c==' ') space=true;
-				if (space) continue;
 				seq_id[ seq_id_len++ ] = c;
 				if (strchr ( "|&#!;<>(){}$~[]?", c )) c='_'; 
 				if (c=='\'' ||c=='\"'||c=='\\') c='_';
-				seq_idbis[ seq_id_len-1 ] = c;
+				if (space) continue;
+				seq_idbis[ seq_idbis_len ++ ] = c;
 			}
 			last_c=c;
 			seq_id[ seq_id_len ] = '\0';
-			seq_idbis[ seq_id_len ] = '\0';
-		}
+			seq_idbis[ seq_idbis_len ] = '\0';
+		}	
 
 	    unsigned int max_alloc_seq = 0;
 	    INT seq_len = 0;
@@ -224,21 +226,22 @@ int main(int argc, char **argv)
                 if (sw.c==1)
 		{
                     /* Run pSAscan */
-                    char sa_fname[100] ;
-		    sprintf(sa_fname, "%s_%s_SA.sa5", output_filename, seq_idbis);
-		    char commandesa[100];
+                    char sa_fname[strlen(input_filename)+strlen((const char *) seq_idbis)+20] ;
+		    sprintf(sa_fname, "%s_%s_r%d_SA.sa5", input_filename, seq_idbis, sw.r);
+		    char commandesa[strlen(sa_fname)+100];
 		    sprintf(commandesa, "./pSAscan-0.1.0/src/psascan seq.txt -m %ldL -o %s", ram_use>>20, sa_fname);
 		    int outsa=system(commandesa);
 
+		    std::cout<<"BWT construction"<<std::endl; 
 		    /*Construct BWT*/
-                    char bwt_fname[100] ;
-		    sprintf(bwt_fname, "%s_%s_BWT.bwt5", output_filename, seq_idbis);
+                    char bwt_fname[strlen(input_filename)+strlen((const char*)seq_idbis)+20] ;
+		    sprintf(bwt_fname, "%s_%s_r%d_BWT.bwt5", input_filename, seq_idbis, sw.r);
                     compute_bwt((char*)"seq.txt",sa_fname,bwt_fname,ram_use,n );
 
                     /* Run LCPscan */
-                    char lcp_fname[100] ;
-		    sprintf(lcp_fname, "%s_%s_LCP.lcp5", output_filename, seq_idbis);
-                    char commande[1000];
+                    char lcp_fname[strlen(input_filename)+strlen((const char*)seq_idbis)+20] ;
+		    sprintf(lcp_fname, "%s_%s_r%d_LCP.lcp5", input_filename, seq_idbis, sw.r);
+                    char commande[strlen(sa_fname)+strlen(lcp_fname)+100];
 		    sprintf(commande,"./LCPscan-0.1.0/build/construct_lcp -m %ldL -o %s -s %s seq.txt", ram_use>>20, lcp_fname, sa_fname);
  		    int out=system(commande);
 		}

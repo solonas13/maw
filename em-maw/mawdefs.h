@@ -48,6 +48,7 @@ struct TSwitch
     unsigned int         K;
     unsigned int         r;
     unsigned int         c;
+    unsigned int 	 f;
     long		 ram_use;
     unsigned int         total_length;
 };
@@ -66,6 +67,7 @@ struct SApairs
         }
     }
 };
+bool SAcompare(SApairs l, SApairs r );
 
 struct BWTpairs
 {
@@ -81,15 +83,10 @@ struct BWTpairs
         }
     }
 };
+bool BWTcompare(BWTpairs l, BWTpairs r);
 
 unsigned char RevComChar ( unsigned char c );
 unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long ram_use, INT n );
-static void swap (SApairs * a, INT i, INT j);
-static void swap (BWTpairs * a, INT i, INT j);
-static INT partition( SApairs * a, INT l, INT r );
-static INT partition( BWTpairs * a, INT l, INT r );
-static void quickrec(SApairs * a,INT l, INT r);
-static void quickrec(BWTpairs * a, INT l, INT r);
 double gettime( void );
 int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
 void usage ( void );
@@ -125,4 +122,5 @@ unsigned int GetMaws(
                                 char * out_file,
 				char * fout,
 				int r,
+				int f,
 				long ram_use );
