@@ -174,7 +174,7 @@ void usage ( void )
    fprintf ( stdout, "  -r, --reverse             <int>     `1' to check for the reverse complement or\n"
                      "                                      `0' otherwise (default: 0).\n"
             );
-   fprintf ( stdout, "  -m, --mem=LIMIT           <int>     Limit RAM usage to LIMIT KB (default: 3072MiB)\n" );
+   fprintf ( stdout, "  -m, --mem=LIMIT           <int>     Limit RAM usage to LIMIT MiB (default: 3072MiB)\n" );
    fprintf ( stdout, "  -c, --compute-file        <int>     `1' to compute files for SA, LCP, BWT or \n"
                      "                                      `0' otherwise (default: 1).\n" );
    fprintf ( stdout, "  -f, --output-format       <int>     `1' to output the sequence of maws or, \n"
