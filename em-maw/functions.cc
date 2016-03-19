@@ -70,7 +70,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
 	stream_reader<uint40>* fSA =  new stream_reader <uint40> (sa_fname, ram_left/2);
 	stream_writer<unsigned char> * fBWT = new stream_writer <unsigned char>(bwt_fname, ram_left/2);
 	INT pos;
-	for (int i=0; i<n; i++)
+	for (INT i=0; i<n; i++)
 	{
 		pos=fSA->read();
 		if (pos>0)
@@ -94,7 +94,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
     	BWTpairs * bwtpairs= new BWTpairs [elems];
     	INT pos=0;
         unsigned char c;
-    	int nbloop=n/elems +1;
+    	INT nbloop=n/elems +1;
     	INT sum=0;
 	bool b=false;
     	for (INT i=0; i<nbloop; i++)
@@ -103,7 +103,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
        		{
             		elems=n-i*elems;
         	}
-        	int n_read=fread(SAvalue, sizeof(uint40), elems, fSA);
+        	INT n_read=fread(SAvalue, sizeof(uint40), elems, fSA);
                 if (n_read!=elems)
                 {
                     std::cout<<"Problem while reading the sequence during BWT computation"<<std::endl;
@@ -140,7 +140,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
 			}
         	}
         	std::sort(bwtpairs, bwtpairs+elems, BWTcompare);
-       		for (int j=0; j<elems; j++)
+       		for (INT j=0; j<elems; j++)
         	{
 	    		BWTvalue[j]=bwtpairs[j].bwt;
         	}
@@ -412,7 +412,7 @@ unsigned int GetBefore (
     INT mem;
     INT proxa;
     INT proxb;
-    int width_to_print=floor(log10(n))+2;
+    INT width_to_print=floor(log10(n))+2;
     // ram_use/4
     TStackinfile lifo_lcp;
     StackNew ( &lifo_lcp, sizeof( INT ),"streambis_stacklcp.txt", ram_use/8 );
@@ -436,7 +436,7 @@ unsigned int GetBefore (
     StackPush(&lifo_lcp, &lcp);
     
     fLCP->goto_set();
-    int * LCPmem= new int [2];
+    INT * LCPmem= new INT [2];
     fLCP->goto_set();
     fSA->goto_set();
     fBWT->goto_set();
@@ -588,7 +588,7 @@ unsigned int GetBefore (
     delete [] BWTmem;
     fBefore1->write(char(Beforemem[0].to_ulong()));
     fBeforelcp1->write(char(Beforelcpmem[0].to_ulong()));
-    int result;
+    INT result;
     delete(fBefore1);
     delete(fBeforelcp1);
 
@@ -762,12 +762,12 @@ unsigned int GetBefore (
 unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT n, int sigma, stream_reader<uint40>  * fLCP, char * Before_fname, char * Beforelcp_fname, unsigned int k, unsigned int K, char * out_file,char * out_file_compressed, int r,int f, long ram_use )
 {
     FILE * out_fd;
-    int width_to_print=floor(log10(n))+2;
+    INT width_to_print=floor(log10(n))+2;
     INT lcp = 0;
     INT mem;
     
     fLCP->goto_set();
-    int * LCPmem= new int [2];
+    INT * LCPmem= new INT [2];
     
     bool bmem=false;
     stream_writer<int> * fmem= new stream_writer<int> ("streambis_mem.txt", ram_use/2);
@@ -921,13 +921,13 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
 	    stream_reader<unsigned char> * fseq= new stream_reader<unsigned char> ("seq.txt",ram_use/2);
             unsigned char c=' ';
 	    char * maw= new char[K+1];
-	    int j=-1;
+	    INT j=-1;
 	    while (! fout_r->empty())
 	    {	
 		j++;
 	        T=fout_r->read();
 		maw[0]=T.c;
-	        for (int i=0; i<T.size; i++)
+	        for (INT i=0; i<T.size; i++)
 	        {
 		    c=fseq->getValue(T.start+i);
 	 	    maw[1+i]=c;

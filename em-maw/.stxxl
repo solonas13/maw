@@ -1,0 +1,3 @@
+-e disk=/home/solonas13/maw/em-maw/tmpdata/data01/stxxl,200000,syscall_unlink
+disk=/home/solonas13/maw/em-maw/tmpdata/data02/stxxl,200000,syscall_unlink
+
