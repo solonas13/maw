@@ -27,7 +27,7 @@
 #include<bitset>
 
 
-void StackNew( TStackinfile *s,int elemSize, std::string fname, int bufsize)
+void StackNew( TStackinfile *s,INT elemSize, std::string fname, INT bufsize)
 {
 	assert(elemSize>0);
 	s->elemSize = elemSize;
@@ -35,7 +35,7 @@ void StackNew( TStackinfile *s,int elemSize, std::string fname, int bufsize)
 	s->bufelems=bufsize/elemSize;
 	if (s->bufelems%2==1) s->bufelems-=1;
 	s->filled=0;
-	s->offset=0L;
+	s->offset=0;
 	s->buffer=malloc(s->bufelems*elemSize);
 }
 
@@ -74,7 +74,7 @@ void StackPop( TStackinfile *s, void *elemAddr)
 void flush(TStackinfile *s){
 	if (s->filled==s->bufelems)
 	{
-		int size=s->bufelems/2;
+		INT size=s->bufelems/2;
 		std::fwrite(s->buffer, s->elemSize, size, s->file);
 		s->filled=size;
 		s->offset+=size;
@@ -91,17 +91,17 @@ void flush(TStackinfile *s){
 }
 
 void refill(TStackinfile *s){
-	int size=s->bufelems/2;
+	INT size=s->bufelems/2;
 	if (s->offset < size)
 	{
 		std::fseek(s->file, 0, SEEK_SET);
-		s->filled = (int)std::fread(s->buffer, s->elemSize, s->offset, s->file);
+		s->filled = (INT)std::fread(s->buffer, s->elemSize, s->offset, s->file);
 		std::fseek(s->file, 0, SEEK_SET);
 	}
 	else
 	{
 		std::fseek(s->file, -size*s->elemSize, SEEK_CUR);
-		s->filled = (int)std::fread(s->buffer, s->elemSize, size, s->file);
+		s->filled = (INT)std::fread(s->buffer, s->elemSize, size, s->file);
 		std::fseek(s->file, -size*s->elemSize, SEEK_CUR);
 	}
 	s->offset-=s->filled;

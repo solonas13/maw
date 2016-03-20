@@ -54,7 +54,7 @@ double gettime( void )
 bool BWTcompare(BWTpairs l, BWTpairs r){return l.pos<r.pos;}
 bool SAcompare(SApairs l, SApairs r ){return l.SApos<r.SApos;}
 
-unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long ram_use, INT n )
+unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, INT ram_use, INT n )
 {
     if (ram_use > 4*sizeof(uint40)+n*sizeof(unsigned char))
     {
@@ -66,7 +66,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long
 		std::cout<<"Problem while reading the sequence during BWT computation"<<std::endl;
     }
 	fclose(fseq);
-	long ram_left= ram_use - n*sizeof(unsigned char);
+	INT ram_left= ram_use - n*sizeof(unsigned char);
 	stream_reader<uint40>* fSA =  new stream_reader <uint40> (sa_fname, ram_left/2);
 	stream_writer<unsigned char> * fBWT = new stream_writer <unsigned char>(bwt_fname, ram_left/2);
 	INT pos;
@@ -164,7 +164,7 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
 	if      ( ! strcmp ( "DNA", sw . alphabet ) )   sigma = strlen ( ( char * ) DNA );
     else if ( ! strcmp ( "PROT", sw . alphabet ) )  sigma = strlen ( ( char * ) PROT );
 
-    long ram_use =sw.ram_use;    
+    INT ram_use =sw.ram_use;
     char str[100] ;
     sprintf(str, "%s_%s_r%d_BWT.bwt5",sw.input_filename, file_id, sw.r);
 
@@ -404,7 +404,7 @@ unsigned int GetBefore (
 			char * Before_fname2,
                         char * Beforelcp_fname,
 			char * Beforelcp_fname2,
-			long ram_use)
+			INT ram_use)
 {
     INT hm = 0;
     INT k = 0;
@@ -608,7 +608,6 @@ unsigned int GetBefore (
     StackPush(&lifo_interval,&interval);
     StackPush(&lifo_lcp,&lcp);
     
-    long  file_index;
     for (INT i=n-1; i>-1; i--)
     {
 	interval.reset();
@@ -759,7 +758,7 @@ unsigned int GetBefore (
 }
 
 
-unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT n, int sigma, stream_reader<uint40>  * fLCP, char * Before_fname, char * Beforelcp_fname, unsigned int k, unsigned int K, char * out_file,char * out_file_compressed, int r,int f, long ram_use )
+unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT n, int sigma, stream_reader<uint40>  * fLCP, char * Before_fname, char * Beforelcp_fname, unsigned int k, unsigned int K, char * out_file,char * out_file_compressed, int r,int f, INT ram_use )
 {
     FILE * out_fd;
     INT width_to_print=floor(log10(n))+2;
@@ -776,7 +775,6 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
     StackPush(&lifo_lcp,&lcp);
 
  //we compute a bitvector that contains a `1', if an identical row has already been seen => to avoid duplicates.
-    long ftell_mem;
     for ( INT i = 0; i < n; i++ )
     {
         LCPmem[0]=fLCP->read();

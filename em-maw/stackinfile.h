@@ -22,17 +22,25 @@
 #include<algorithm>
 #include<string>
 #include<bitset>
+
+#ifdef _USE_64
+typedef int64_t INT;
+#endif
+
+#ifdef _USE_32
+typedef int32_t INT;
+#endif
 struct TStackinfile
  {
-	int elemSize;
+	INT elemSize;
 	std::FILE * file;
-	int bufelems;
-	int filled;
-	long offset;
+	INT bufelems;
+	INT filled;
+	INT offset;
 	void * buffer;
  };
 
-void StackNew( TStackinfile *s,int elemSize, std::string fname, int bufsize=(4<<20) );
+void StackNew( TStackinfile *s,INT elemSize, std::string fname, INT bufsize=(4<<20) );
 void StackDispose ( TStackinfile *s );
 bool StackEmpty ( const TStackinfile *s );
 void StackPush ( TStackinfile *s, const void *elemAddr );

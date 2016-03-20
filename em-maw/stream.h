@@ -38,7 +38,7 @@ struct stream_reader {
     return m_buffer[m_pos];
   }
 
-  inline T& operator[] (long i) {
+  inline T& operator[] (INT i) {
     assert(i >= m_offset);
     if (i >= m_offset + m_filled) {  // elem not in a buffer
       if (i < m_offset + m_filled + m_bufelems) {
@@ -53,7 +53,7 @@ struct stream_reader {
     return m_buffer[i - m_offset];
   }
 
-  inline T getValue(long i) {
+  inline T getValue(INT i) {
     assert(i >= m_offset);
     if (i >= m_offset + m_filled) {  // elem not in a buffer
       if (i < m_offset + m_filled + m_bufelems) {
@@ -128,7 +128,7 @@ struct stream_reader {
 
 
  private:
-  INT refill(long new_offset = -1) {
+  INT refill(INT new_offset = -1) {
     if (new_offset != -1) {
       std::fseek(m_file, new_offset, SEEK_SET);
       m_offset=new_offset/sizeof(T);
@@ -174,7 +174,7 @@ struct stream_reader {
   std::FILE *m_file;
 
   INT m_bufelems, m_filled, m_pos;
-  long m_offset;
+  INT m_offset;
   T *m_buffer;
 };
 

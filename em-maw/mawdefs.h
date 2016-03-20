@@ -49,7 +49,7 @@ struct TSwitch
     unsigned int         r;
     unsigned int         c;
     unsigned int 	 f;
-    long		 ram_use;
+    INT		 ram_use;
     unsigned int         total_length;
 };
 
@@ -86,7 +86,7 @@ struct BWTpairs
 bool BWTcompare(BWTpairs l, BWTpairs r);
 
 unsigned char RevComChar ( unsigned char c );
-unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, long ram_use, INT n );
+unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, INT ram_use, INT n );
 double gettime( void );
 int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
 void usage ( void );
@@ -108,7 +108,7 @@ unsigned int GetBefore (
 			char * Before_fname2,
                         char * Beforelcp_fname,
 			char * Beforelcp_fname2,
-                        long ram_use);
+                        INT ram_use);
 unsigned int GetMaws(
                                 unsigned char * seq_id,
                                 stream_reader<uint40> * SA,
@@ -123,4 +123,4 @@ unsigned int GetMaws(
 				char * fout,
 				int r,
 				int f,
-				long ram_use );
+				INT ram_use );

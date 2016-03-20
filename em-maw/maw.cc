@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 	char *          alphabet;               // the alphabet
 	unsigned int    i, j;
 	unsigned int    k, K, r;
-	long ram_use;	
+	INT ram_use;
 
 	/* Decodes the arguments */
         i = decode_switches ( argc, argv, &sw );
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 			seq_idbis[ seq_idbis_len ] = '\0';
 		}	
 
-	    unsigned int max_alloc_seq = 0;
+	    
 	    INT seq_len = 0;
             stream_writer<unsigned char> * fseq_inw=new stream_writer<unsigned char>("seq1strand.txt", ram_use);
             while ( ( c = fgetc( in_fd ) ) != EOF && c != '>' )
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 		stream_reader<unsigned char> * fseq_inr = new stream_reader<unsigned char> ("seq1strand.txt",ram_use/2);
                 stream_writer<unsigned char> *fseq_final = new stream_writer<unsigned char>("seq.txt", ram_use/2);
                 unsigned char cb;
-		for (int i=0; i<seq_len; i++)
+		for (INT i=0; i<seq_len; i++)
                 {
                     cb=fseq_inr->read();
                     fseq_final->write(cb);
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 			
 		   fseq_bis->goto_end(seq_len);
 		   fseq_final->write('$');                    
-                    for (int i=0; i<seq_len; i++)
+                    for (INT i=0; i<seq_len; i++)
                     {
                         cb=fseq_bis->read_reverse();
                         fseq_final->write(RevComChar(cb));
