@@ -165,7 +165,8 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
     else if ( ! strcmp ( "PROT", sw . alphabet ) )  sigma = strlen ( ( char * ) PROT );
 
     INT ram_use =sw.ram_use;
-    char str[100] ;
+    //char str[100] ;
+    char * str= (char *) malloc( (strlen(sw.input_filename)+strlen((const char*)file_id)+15)*sizeof(char));
     sprintf(str, "%s_%s_r%d_BWT.bwt5",sw.input_filename, file_id, sw.r);
 
     stream_reader<unsigned char> *fBWT = new stream_reader<unsigned char>(str,ram_use/6);
@@ -173,23 +174,34 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
     stream_reader<uint40> *fSA = new stream_reader<uint40>(str,ram_use/6);
     sprintf(str, "%s_%s_r%d_LCP.lcp5",sw.input_filename, file_id,sw.r);
     stream_reader<uint40> *fLCP = new stream_reader<uint40>(str,ram_use/6);
+    free(str);
     
-    char Before_fname[100];
+    //char Before_fname[100];
+    char * Before_fname= (char *) malloc( (strlen(sw.output_filename)+20)*sizeof(char));
     sprintf(Before_fname, "%s_Before_step1.txt",sw.output_filename);
-    char Beforelcp_fname[100];
+    //char Beforelcp_fname[100];
+    char * Beforelcp_fname= (char *) malloc( (strlen(sw.output_filename)+25)*sizeof(char));
     sprintf(Beforelcp_fname, "%s_Beforelcp_step1.txt", sw.output_filename);
-    char Before_fname2[100];
+    //char Before_fname2[100];
+    char * Before_fname2= (char *) malloc( (strlen(sw.output_filename)+20)*sizeof(char));
     sprintf(Before_fname2, "%s_Before_step2.txt",sw.output_filename);
-    char Beforelcp_fname2[100];
+    //char Beforelcp_fname2[100];
+    char * Beforelcp_fname2= (char *) malloc( (strlen(sw.output_filename)+25)*sizeof(char));
     sprintf(Beforelcp_fname2, "%s_Beforelcp_step2.txt", sw.output_filename);
     GetBefore ( fBWT,c, n , sigma, fSA, fLCP, Before_fname, Before_fname2, Beforelcp_fname,Beforelcp_fname2, ram_use/2);
     remove(Before_fname);
     remove(Beforelcp_fname);
-    char fout[100];
+    free(Before_fname);
+    free(Beforelcp_fname);
+    //char fout[100];
+    char * fout= (char *) malloc( (strlen(sw.output_filename)+20)*sizeof(char));
     sprintf(fout, "%s_compressed.txt", sw.output_filename);
     GetMaws( seq_id, fSA, n, sigma, fLCP, Before_fname2, Beforelcp_fname2, sw . k, sw . K, sw . output_filename,fout, sw.r,sw.f, ram_use/2 );
     remove(Before_fname2);
     remove(Beforelcp_fname2);
+    free(Before_fname2);
+    free(Beforelcp_fname2);
+    free(out);
     delete ( fSA );
     delete ( fBWT );
     delete( fLCP );
