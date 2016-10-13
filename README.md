@@ -19,7 +19,7 @@ C. Barton, A. Heliou, L. Mouchard, S. P. Pissis:
 Parallelising the Computation of Minimal Absent Words. 
 PPAM (2) 2015: 243-253
 ```
-To compile <b>scMAW</b>, please change to directory <b>sc-maw</b> and follow the instructions given in file INSTALL.
+To compile <b>scMAW</b> (Sequence Comparison), please change to directory <b>sc-maw</b> and follow the instructions given in file INSTALL.
 
 When publishing work that is based on the results from scMAW please cite:
 ```
