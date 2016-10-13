@@ -1,7 +1,6 @@
 MAW: Minimal Absent Words
 ===
 
-GNU GPLv3 License; Copyright (C) 2014 Alice Heliou and Solon P. Pissis.
 
 To compile MAW, please follow the instructions given in file INSTALL.
 
@@ -30,3 +29,5 @@ LATIN 2016: 334-346
 To compile emMAW (External Memory), please change to directory <b>em-maw</b> and follow the instructions given in file INSTALL.
 
 A. Heliou, S. P. Pissis, S. J. Puglisi, "Computing Minimal Absent Words in External Memory". (in preparation)
+
+GNU GPLv3 License; Copyright (C) 2014 Alice Heliou and Solon P. Pissis.
