@@ -34,11 +34,11 @@ struct triplet
 	}*/
 	
 	unsigned char c=' ';
-	uint40 start=0;
-	uint40 size=0;
+	INT start=0;
+	INT size=0;
  };
 
-void changetriplet(triplet* T, unsigned char mc, uint40 mstart, uint40 msize)
+void changetriplet(triplet* T, unsigned char mc, INT mstart, INT msize)
 	{	
 		T->c=mc;
 		T->start=mstart;

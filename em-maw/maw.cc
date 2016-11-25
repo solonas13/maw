@@ -94,6 +94,11 @@ int main(int argc, char **argv)
 		return ( 1 );
 	}
 
+    unsigned char seq1strand_fname[strlen( output_filename)+20] ;
+    unsigned char seqfinal_fname[strlen(output_filename)+20] ;
+    sprintf((char*)seqfinal_fname, "%s_r%d_1strand.txt", output_filename, sw.r);
+    sprintf((char*)seqfinal_fname, "%s_r%d_final.txt", output_filename, sw.r);
+    
 	char c;
 	unsigned char last_c;
 	c = fgetc( in_fd );
@@ -134,7 +139,7 @@ int main(int argc, char **argv)
 
 	    
 	    INT seq_len = 0;
-            stream_writer<unsigned char> * fseq_inw=new stream_writer<unsigned char>("seq1strand.txt", ram_use);
+            stream_writer<unsigned char> * fseq_inw=new stream_writer<unsigned char>((const char*)seq1strand_fname, ram_use);
             while ( ( c = fgetc( in_fd ) ) != EOF && c != '>' )
             {
                 if( seq_len == 0 && c == '\n' )
@@ -175,8 +180,8 @@ int main(int argc, char **argv)
                 
 		delete (fseq_inw);
 
-		stream_reader<unsigned char> * fseq_inr = new stream_reader<unsigned char> ("seq1strand.txt",ram_use/2);
-                stream_writer<unsigned char> *fseq_final = new stream_writer<unsigned char>("seq.txt", ram_use/2);
+		stream_reader<unsigned char> * fseq_inr = new stream_reader<unsigned char> ((const char*)seq1strand_fname,ram_use/2);
+                stream_writer<unsigned char> *fseq_final = new stream_writer<unsigned char>((const char*)seqfinal_fname, ram_use/2);
                 unsigned char cb;
 		for (INT i=0; i<seq_len; i++)
                 {
@@ -187,7 +192,7 @@ int main(int argc, char **argv)
                 
 		if ( r )
                 {
-		   stream_reader<unsigned char> *fseq_bis= new stream_reader<unsigned char>("seq1strand.txt", ram_use/2);
+		   stream_reader<unsigned char> *fseq_bis= new stream_reader<unsigned char>((const char*) seq1strand_fname, ram_use/2);
 			
 		   fseq_bis->goto_end(seq_len);
 		   fseq_final->write('$');                    
@@ -199,7 +204,7 @@ int main(int argc, char **argv)
 		    delete(fseq_bis);
                 }
 		delete(fseq_final);
-                remove("seq1strand.txt"); 
+                remove((const char*) seq1strand_fname);
                 if (r)
                 {
                     n=seq_len*2+1;
@@ -229,28 +234,28 @@ int main(int argc, char **argv)
                     char sa_fname[strlen(input_filename)+strlen((const char *) seq_idbis)+20] ;
 		    sprintf(sa_fname, "%s_%s_r%d_SA.sa5", input_filename, seq_idbis, sw.r);
 		    char commandesa[strlen(sa_fname)+100];
-		    sprintf(commandesa, "./pSAscan-0.1.0/src/psascan seq.txt -m %ldL -o %s", ram_use>>20, sa_fname);
+		    sprintf(commandesa, "./pSAscan-0.1.0/src/psascan %s -m %ldL -o %s",seqfinal_fname, ram_use>>20, sa_fname);
 		    int outsa=system(commandesa);
 
 		    std::cout<<"BWT construction"<<std::endl; 
 		    /*Construct BWT*/
                     char bwt_fname[strlen(input_filename)+strlen((const char*)seq_idbis)+20] ;
 		    sprintf(bwt_fname, "%s_%s_r%d_BWT.bwt5", input_filename, seq_idbis, sw.r);
-                    compute_bwt((char*)"seq.txt",sa_fname,bwt_fname,ram_use,n );
+                    compute_bwt((char*)seqfinal_fname,sa_fname,bwt_fname,ram_use,n );
 
                     /* Run LCPscan */
                     char lcp_fname[strlen(input_filename)+strlen((const char*)seq_idbis)+20] ;
 		    sprintf(lcp_fname, "%s_%s_r%d_LCP.lcp5", input_filename, seq_idbis, sw.r);
                     char commande[strlen(sa_fname)+strlen(lcp_fname)+100];
-		    sprintf(commande,"./LCPscan-0.1.0/build/construct_lcp -m %ldL -o %s -s %s seq.txt", ram_use>>20, lcp_fname, sa_fname);
+		    sprintf(commande,"./LCPscan-0.1.0/build/construct_lcp -m %ldL -o %s -s %s %s", ram_use>>20, lcp_fname, sa_fname,seqfinal_fname);
  		    int out=system(commande);
 		}
-		compute_maw (n,last_c,seq_idbis,seq_id, sw );
-        	remove("seq.txt");
+		compute_maw (n,last_c,seq_idbis,seq_id, sw,seqfinal_fname );
+        	//remove(seqfinal_fname);
             }
 	    else
 	    {
-		delete(fseq_inw);remove("seq1strand.txt");
+		delete(fseq_inw);remove((const char*) seq1strand_fname);
 	    }
         
 	   free ( seq_id );
