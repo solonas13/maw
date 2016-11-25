@@ -157,7 +157,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, INT 
     }
 }
 
-unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsigned char * seq_id, struct TSwitch sw )
+unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsigned char * seq_id, struct TSwitch sw,unsigned char * seqfinal_fname )
 {
    int sigma;
 
@@ -165,7 +165,6 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
     else if ( ! strcmp ( "PROT", sw . alphabet ) )  sigma = strlen ( ( char * ) PROT );
 
     INT ram_use =sw.ram_use;
-    //char str[100] ;
     char * str= (char *) malloc( (strlen(sw.input_filename)+strlen((const char*)file_id)+15)*sizeof(char));
     sprintf(str, "%s_%s_r%d_BWT.bwt5",sw.input_filename, file_id, sw.r);
 
@@ -176,16 +175,12 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
     stream_reader<uint40> *fLCP = new stream_reader<uint40>(str,ram_use/6);
     free(str);
     
-    //char Before_fname[100];
     char * Before_fname= (char *) malloc( (strlen(sw.output_filename)+20)*sizeof(char));
     sprintf(Before_fname, "%s_Before_step1.txt",sw.output_filename);
-    //char Beforelcp_fname[100];
     char * Beforelcp_fname= (char *) malloc( (strlen(sw.output_filename)+25)*sizeof(char));
     sprintf(Beforelcp_fname, "%s_Beforelcp_step1.txt", sw.output_filename);
-    //char Before_fname2[100];
     char * Before_fname2= (char *) malloc( (strlen(sw.output_filename)+20)*sizeof(char));
     sprintf(Before_fname2, "%s_Before_step2.txt",sw.output_filename);
-    //char Beforelcp_fname2[100];
     char * Beforelcp_fname2= (char *) malloc( (strlen(sw.output_filename)+25)*sizeof(char));
     sprintf(Beforelcp_fname2, "%s_Beforelcp_step2.txt", sw.output_filename);
     GetBefore ( fBWT,c, n , sigma, fSA, fLCP, Before_fname, Before_fname2, Beforelcp_fname,Beforelcp_fname2, ram_use/2);
@@ -193,15 +188,15 @@ unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsign
     remove(Beforelcp_fname);
     free(Before_fname);
     free(Beforelcp_fname);
-    //char fout[100];
+
     char * fout= (char *) malloc( (strlen(sw.output_filename)+20)*sizeof(char));
     sprintf(fout, "%s_compressed.txt", sw.output_filename);
-    GetMaws( seq_id, fSA, n, sigma, fLCP, Before_fname2, Beforelcp_fname2, sw . k, sw . K, sw . output_filename,fout, sw.r,sw.f, ram_use/2 );
+    GetMaws(seqfinal_fname, seq_id, fSA, n, sigma, fLCP, Before_fname2, Beforelcp_fname2, sw . k, sw . K, sw . output_filename,fout, sw.r,sw.f, ram_use/2 );
     remove(Before_fname2);
     remove(Beforelcp_fname2);
     free(Before_fname2);
     free(Beforelcp_fname2);
-    free(out);
+    free(fout);
     delete ( fSA );
     delete ( fBWT );
     delete( fLCP );
@@ -770,7 +765,7 @@ unsigned int GetBefore (
 }
 
 
-unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT n, int sigma, stream_reader<uint40>  * fLCP, char * Before_fname, char * Beforelcp_fname, unsigned int k, unsigned int K, char * out_file,char * out_file_compressed, int r,int f, INT ram_use )
+unsigned int GetMaws( unsigned char * seqfinal_fname, unsigned char * seq_id, stream_reader<uint40>  * fSA, INT n, int sigma, stream_reader<uint40>  * fLCP, char * Before_fname, char * Beforelcp_fname, unsigned int k, unsigned int K, char * out_file,char * out_file_compressed, int r,int f, INT ram_use )
 {
     FILE * out_fd;
     INT width_to_print=floor(log10(n))+2;
@@ -917,7 +912,7 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
  	remove("streambis_mem.txt");
 
 	cout<< nbmaw << " minimal absent words have been found."<<endl;
-
+	
 	if (f==1)
 	{
 	   if ( ! ( out_fd = fopen ( out_file, "a") ) )
@@ -926,30 +921,67 @@ unsigned int GetMaws(  unsigned char * seq_id, stream_reader<uint40>  * fSA, INT
 		return ( 1 );
 	   }
 	    fprintf(out_fd,">%s\n",(char *) seq_id); 
-	    stream_reader<triplet> * fout_r= new stream_reader<triplet> (out_file_compressed, ram_use/2);
-	    fout_r->goto_pos(offset_out);
-	    stream_reader<unsigned char> * fseq= new stream_reader<unsigned char> ("seq.txt",ram_use/2);
-            unsigned char c=' ';
-	    char * maw= new char[K+1];
-	    INT j=-1;
-	    while (! fout_r->empty())
-	    {	
-		j++;
-	        T=fout_r->read();
-		maw[0]=T.c;
-	        for (INT i=0; i<T.size; i++)
-	        {
-		    c=fseq->getValue(T.start+i);
-	 	    maw[1+i]=c;
-	        }
-		maw[T.size+1]='\0';
-	        fprintf(out_fd,"%s\n",maw);
+
+	    FILE* fseq;
+	    if ( ! (fseq=fopen( (const char*) seqfinal_fname,"r")))
+	    {
+		fprintf ( stderr, " Error: Cannot open file %s!\n", seqfinal_fname );
+                return ( 1 );
 	    }
-	    cout <<"maw printed"<<endl;
+	    INT seq_read=0LLU;
+	    INT seq_length;
+	    if (n<7*ram_use/8)
+		seq_length=n;
+	    else
+		seq_length=7*ram_use/8;
+	    char * seq = (char*) malloc (seq_length*sizeof(char));
+	    char * res = (char*) malloc (ram_use/8*sizeof(char));
+	    fread(seq,sizeof(char),seq_length,fseq);
+	    stream_reader<triplet> * fout_r= new stream_reader<triplet> (out_file_compressed, ram_use/8);
+	    
+        unsigned char c=' ';
+	    char * maw= new char[K+1];
+	    INT j=0LLU;
+	    INT jr=0LLU;
+
+        fprintf(stderr,"ram_use for seq %llu\n",ram_use/2);
+	    while (seq_read<n)
+	    {
+            fprintf(stderr,"seq_read %llu seq_length %llu \n",seq_read, seq_length);
+            fout_r->goto_pos(offset_out);
+	    	while (! fout_r->empty())
+	    	{	
+	            T=fout_r->read();
+                if (jr+T.size+2>=ram_use/8)
+                {
+                    fwrite(res, sizeof(char),jr,out_fd);
+                    jr=0;
+                }
+                if (T.start+T.size<seq_read+seq_length && T.start>=seq_read)
+                {
+                    j++;
+                    res[jr++]=T.c;
+                    for (INT i=0; i<T.size; i++)
+                    {
+                        c=seq[T.start+i-seq_read];
+                        res[jr++]=c;
+                    }
+
+                    res[jr++]='\n';
+                }
+            }
+            if (seq_read==0)
+                fprintf(stderr,"number of maws printed in the first pass %llu \n",j);
+            seq_read+=seq_length;
+            fread(seq,sizeof(char),seq_length,fseq);
+            fprintf(stderr, "fread seq_read %llu seq_length %llu\n",seq_read,seq_length);
+	    }
+	    fwrite(res, sizeof(char),jr,out_fd);
+	    cout <<j<<" maws printed"<<endl;
 	    delete [] maw;
 	    delete(fout_r);
 	    remove(out_file_compressed);
-	    delete(fseq);
+	    fclose(fseq);
 	    fprintf( out_fd, "\n" );
 	    if ( fclose ( out_fd ) )
 	    {

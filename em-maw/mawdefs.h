@@ -91,7 +91,7 @@ double gettime( void );
 int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
 void usage ( void );
 unsigned int RevComStr ( unsigned char * str, unsigned char * str2, INT iLen );
-unsigned int compute_maw ( INT n, unsigned char c, unsigned char * file_id, unsigned char * seq_id, struct TSwitch sw );
+unsigned int compute_maw ( INT n, unsigned char c, unsigned char * file_id, unsigned char * seq_id, struct TSwitch sw, unsigned char * seqfinal_fname );
 unsigned char Mapping( int a );
 int RevMapping ( unsigned char b );
 unsigned int LCParray ( unsigned char *text, INT n, INT * SA, INT * ISA, INT * LCP );
@@ -110,6 +110,7 @@ unsigned int GetBefore (
 			char * Beforelcp_fname2,
                         INT ram_use);
 unsigned int GetMaws(
+                                unsigned char * seqfinal_fname,
                                 unsigned char * seq_id,
                                 stream_reader<uint40> * SA,
                                 INT n,
