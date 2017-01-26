@@ -1,5 +1,5 @@
  /**
-    MAW: Minimal Absent Words
+    MAW: Minimal Absent Words  v. 1.0
     Copyright (C) 2014 Alice Heliou and Solon P. Pissis. 
 
     This program is free software: you can redistribute it and/or modify
