@@ -40,4 +40,4 @@ clean-all:
 	rm -r sdsl-lite
 	rm -r tmpdata
 	rm -r pSAscan-0.1.0
-	rm -r LCPscan-0.1.0
+	rm -r EM-SparsePhi-0.1.0
