@@ -13,12 +13,10 @@ cd src
 make
 cd ../../
 
-tar -xjvf LCPscan-0.1.0.tar.bz2
-cd LCPscan-0.1.0
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE="Release" ..
-make 
+tar -xvf EM-SparsePhi-0.1.0.tar.gz
+cd EM-SparsePhi-0.1.0
+cd src
+make
 cd ../../
 
 mkdir tmpdata

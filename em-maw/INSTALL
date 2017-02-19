@@ -20,5 +20,5 @@ program for 64-bit integers. This requires double the amount of memory.
 After compilation the binary `em-maw' will be created in the working 
 directory, e.g. you may call it from this directory via
 
- S ./em-maw -a DNA -i ./data/Lc.fasta -o Lc.fasta.out -k 2 -K 10 -c 1 -m 100 -f 1
+ S ./em-maw -a DNA -i ./data/Lc.fasta -o Lc.fasta.out -k 2 -K 10 -c 1 -m 500 -f 1
 
