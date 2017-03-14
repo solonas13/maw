@@ -980,6 +980,8 @@ unsigned int GetMaws( unsigned char * seqfinal_fname, unsigned char * seq_id, st
 	    cout <<j<<" maws printed"<<endl;
 	    delete [] maw;
 	    delete(fout_r);
+	    free(seq);
+	    free(res);
 	    remove(out_file_compressed);
 	    fclose(fseq);
 	    fprintf( out_fd, "\n" );
