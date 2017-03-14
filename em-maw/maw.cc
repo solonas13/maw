@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 
     unsigned char seq1strand_fname[strlen( output_filename)+20] ;
     unsigned char seqfinal_fname[strlen(output_filename)+20] ;
-    sprintf((char*)seqfinal_fname, "%s_r%d_1strand.txt", output_filename, sw.r);
+    sprintf((char*)seq1strand_fname, "%s_r%d_1strand.txt", output_filename, sw.r);
     sprintf((char*)seqfinal_fname, "%s_r%d_final.txt", output_filename, sw.r);
     
 	char c;
