@@ -251,7 +251,7 @@ int main(int argc, char **argv)
  		    int out=system(commande);
 		}
 		compute_maw (n,last_c,seq_idbis,seq_id, sw,seqfinal_fname );
-        	//remove(seqfinal_fname);
+        	remove((const char*) seqfinal_fname);
             }
 	    else
 	    {
