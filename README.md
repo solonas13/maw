@@ -31,7 +31,8 @@ To compile <b>emMAW</b> (External Memory), please change to directory <b>em-maw<
 
 ```
 A. Heliou, S. P. Pissis, S. J. Puglisi: 
-Computing Minimal Absent Words in External Memory. (in preparation)
+Computing Minimal Absent Words in External Memory.
+Bioinformatics [doi: 10.1093/bioinformatics/btx209]
 ```
 
 <b>License</b>: GNU GPLv3 License; Copyright (C) 2014 Alice Heliou and Solon P. Pissis.
