@@ -13,6 +13,7 @@ BMC Bioinformatics 15: 388 (2014)
 ```
 To compile <b>emMAW</b> (External Memory), please change to directory <b>em-maw</b> and follow the instructions given in file INSTALL.
 
+When publishing work that is based on the results from emMAW please cite:
 ```
 A. Heliou, S. P. Pissis, S. J. Puglisi: 
 emMAW: Computing Minimal Absent Words in External Memory.
