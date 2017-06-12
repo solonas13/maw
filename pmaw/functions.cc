@@ -853,12 +853,19 @@ INT Get_min_abs_w(
     char * tmpout;
     tmpout = ( char * ) calloc( (size_t) 100, sizeof( char ) );
     std::ifstream * file_maw_out = new std::ifstream[nb_threads];
+    std::streambuf * buf_out;
     for (int i=0; i< nb_threads; i++)
     {
         file_maw[i].close();
         sprintf( tmpout, "%s.%d", fd_maw,i);
-        file_maw_out[i] . open ( tmp, std::fstream::in | std::fstream::app );
-        file_maw[nb_threads] << file_maw_out[i].rdbuf();
+        file_maw_out[i] . open ( tmpout, std::fstream::in );
+        if (file_maw_out[i])
+        {
+                buf_out=file_maw_out[i].rdbuf();
+                if (buf_out->sgetc()!=EOF)
+                         file_maw[nb_threads]<< buf_out;
+        }
+        file_maw_out[i].close();
         remove(tmpout);
     }
     delete[] file_maw_out;
