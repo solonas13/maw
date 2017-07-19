@@ -969,6 +969,17 @@ unsigned int GetMaws( unsigned char * seqfinal_fname, unsigned char * seq_id, st
 
                     res[jr++]='\n';
                 }
+		else if (T.start>seq_length/2 &&  seq_length-1- T.start<seq_read+seq_length/2 && seq_length-T.start-T.size>=seq_read)
+                {
+                   j++;
+                   res[jr++]=T.c;
+                   for (INT i=0; i<T.size; i++)
+                   {
+                        c=seq[seq_length-1-T.start-i-seq_read];
+                        res[jr++]=RevComChar(c);
+                   }
+                   res[jr++]='\n';
+                }
             }
             if (seq_read==0)
                 fprintf(stderr,"number of maws printed in the first pass %llu \n",j);
