@@ -232,23 +232,30 @@ int main(int argc, char **argv)
 		{
                     /* Run pSAscan */
                     char sa_fname[strlen(input_filename)+strlen((const char *) seq_idbis)+20] ;
-		    sprintf(sa_fname, "%s_%s_r%d_SA.sa5", input_filename, seq_idbis, sw.r);
-		    char commandesa[ strlen(sa_fname) + 1000 ];
-		    sprintf(commandesa, "./pSAscan-0.1.0/src/psascan %s -m %ldL -o %s", seqfinal_fname, ram_use>>20, sa_fname);
-		    int outsa=system(commandesa);
+                    sprintf(sa_fname, "%s_%s_r%d_SA.sa5", input_filename, seq_idbis, sw.r);
+                    char commandesa[ strlen(sa_fname) + 1000 ];
+                    char * fullpathstart = dirname(realpath(argv[0], NULL));
+                    char command1[ strlen(sa_fname) + 1000 ];
+                    strcpy(command1, fullpathstart);
+                    strcat(command1, "/pSAscan-0.1.0/src/psascan %s -m %ldL -o %s");
+                    sprintf(commandesa, command1, seqfinal_fname, ram_use>>20, sa_fname);
+                    int outsa=system(commandesa);
 
-		    std::cout<<"BWT construction"<<std::endl; 
-		    /*Construct BWT*/
+                    std::cout<<"BWT construction"<<std::endl;
+                    /*Construct BWT*/
                     char bwt_fname[strlen(input_filename)+strlen((const char*)seq_idbis)+20] ;
-		    sprintf(bwt_fname, "%s_%s_r%d_BWT.bwt5", input_filename, seq_idbis, sw.r);
+                    sprintf(bwt_fname, "%s_%s_r%d_BWT.bwt5", input_filename, seq_idbis, sw.r);
                     compute_bwt((char*)seqfinal_fname,sa_fname,bwt_fname,ram_use,n );
 
                     /* Run LCPscan */
                     char lcp_fname[strlen(input_filename)+strlen((const char*)seq_idbis)+20] ;
-		    sprintf(lcp_fname, "%s_%s_r%d_LCP.lcp5", input_filename, seq_idbis, sw.r);
+                    sprintf(lcp_fname, "%s_%s_r%d_LCP.lcp5", input_filename, seq_idbis, sw.r);
                     char commande[strlen(sa_fname) + strlen(lcp_fname) + 1000];
-		    sprintf(commande,"./EM-SparsePhi-0.1.0/src/construct_lcp_parallel -m %ldL -o %s -s %s %s", ram_use>>20, lcp_fname, sa_fname,seqfinal_fname);
- 		    int out=system(commande);
+                    char command2[strlen(sa_fname) + strlen(lcp_fname) + 1000];
+                    strcpy(command2, fullpathstart);
+                    strcat(command2, "/EM-SparsePhi-0.1.0/src/construct_lcp_parallel -m %ldL -o %s -s %s %s");
+                    sprintf(commande, command2, ram_use>>20, lcp_fname, sa_fname,seqfinal_fname);
+                    int out=system(commande);
 		}
 		compute_maw (n,last_c,seq_idbis,seq_id, sw,seqfinal_fname );
         	remove((const char*) seqfinal_fname);
