@@ -17,7 +17,7 @@ When publishing work that is based on the results from emMAW please cite:
 ```
 A. Heliou, S. P. Pissis, S. J. Puglisi: 
 emMAW: Computing Minimal Absent Words in External Memory.
-Bioinformatics, 2017. doi: 10.1093/bioinformatics/btx209
+Bioinformatics 33(17): 2746-2749 (2017)
 ```
 To compile <b>pMAW</b> (OpenMP), please change to directory <b>pmaw</b> and follow the instructions given in file INSTALL.
 
