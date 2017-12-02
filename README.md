@@ -3,7 +3,7 @@ MAW: Minimal Absent Words
 
 <b>Description</b>: MAW is a software suite on the computation and application of Minimal Absent Words. MAW includes among others the fastest (to the best of our knowledge) implementation for computing MAWs in intenal memory, an OpenMP implementation for computing MAWs, and an implementation for computing MAWs in external memory.
 
-To compile <b>MAW</b>, please follow the instructions given in file INSTALL.
+To compile <b>MAW</b> (Internal Memory), please follow the instructions given in file INSTALL.
 
 When publishing work that is based on the results from MAW please cite:
 ```
