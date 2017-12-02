@@ -56,19 +56,37 @@ bool SAcompare(SApairs l, SApairs r ){return l.SApos<r.SApos;}
 
 unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, INT ram_use, INT n )
 {
+    #ifdef _LOG_RAM
+    cout <<" ram allowed to compute BWT "<< ram_use << endl;
+    INT mem_cons=0L;
+    #endif
+	
     if (ram_use > 4*sizeof(uint40)+n*sizeof(unsigned char))
     {
 	FILE *fseq = fopen(seq_fname, "r");
 	unsigned char * Seq =new unsigned char [n];
+	    
+	#ifdef _LOG_RAM
+        mem_cons+=n;
+        cout <<" Array Seq uses "<< mem_cons<<endl;
+        #endif
+	    
 	INT n_read=fread(Seq, sizeof(unsigned char), n, fseq);
 	if (n_read!=n)
 	{
 		std::cout<<"Problem while reading the sequence during BWT computation"<<std::endl;
-    }
+        }
 	fclose(fseq);
 	INT ram_left= ram_use - n*sizeof(unsigned char);
 	stream_reader<uint40>* fSA =  new stream_reader <uint40> (sa_fname, ram_left/2);
 	stream_writer<unsigned char> * fBWT = new stream_writer <unsigned char>(bwt_fname, ram_left/2);
+	    
+	#ifdef _LOG_RAM
+        mem_cons+=ram_left;
+        cout <<" stream_reader and stream_writer use "<<ram_left/2<<" each"<<endl;
+        cout <<" Total RAM used for BWT construction "<<mem_cons<<endl;
+        #endif    
+	    
 	INT pos;
 	for (INT i=0; i<n; i++)
 	{
@@ -87,11 +105,25 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, INT 
 	FILE * fSA = fopen(sa_fname, "r");
 	FILE * fBWT = fopen(bwt_fname, "w");
 	stream_reader<unsigned char> * fseq = new stream_reader<unsigned char>(seq_fname, ram_use/2);
-    	INT elems = ram_use / (8*sizeof(uint40));
+	    
+	#ifdef _LOG_RAM
+        mem_cons+=ram_use/2;
+        cout<<" fseq uses "<<mem_cons<<endl;
+        #endif
+	    
+	int size_elems=sizeof(uint40)+sizeof(SApairs)+sizeof(unsigned char)+sizeof(BWTpairs);    
+    	INT elems = ram_use / (2*size_elems);
     	uint40 * SAvalue = new uint40 [elems];
     	SApairs * sapairs = new SApairs [elems];
     	unsigned char * BWTvalue = new unsigned char [elems];
     	BWTpairs * bwtpairs= new BWTpairs [elems];
+	    
+	#ifdef _LOG_RAM
+        mem_cons+=elems*size_elems;
+        cout<<" RAM used for the 4 arrays "<<elems*size_elems<<endl;
+        cout << " Total RAM used "<<mem_cons<<endl;
+        #endif    
+	    
     	INT pos=0;
         unsigned char c;
     	INT nbloop=n/elems +1;
