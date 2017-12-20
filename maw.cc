@@ -60,6 +60,8 @@ int main(int argc, char **argv)
 
 		k       = sw . k;
 		K       = sw . K;
+		//fprintf ( stderr, "k is %d and  K is %d \n", k,K );
+                if (K<=k) {usage(); return 1;};
 		r       = sw . r;
 
                 input_filename          = sw . input_filename;
