@@ -82,11 +82,13 @@ struct stream_reader {
     m_offset=0;
     m_filled=0;
     refill();
+    return true;
   }
 
   inline bool goto_pos(INT offset){
     m_filled=0;
     refill(offset);
+    return true;
   }
 
   inline bool goto_end(INT n_elems){
@@ -94,6 +96,7 @@ struct stream_reader {
     m_offset=n_elems;
     m_filled=0;
     refill_reverse(1);
+    return true;
   }
 
   inline T read() {

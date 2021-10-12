@@ -187,6 +187,7 @@ unsigned int compute_bwt( char* seq_fname, char* sa_fname, char* bwt_fname, INT 
      	fclose(fSA);
      	fclose(fBWT);
     }
+    return ( 1 ); 
 }
 
 unsigned int compute_maw (INT n,unsigned char c,unsigned char * file_id,  unsigned char * seq_id, struct TSwitch sw,unsigned char * seqfinal_fname )
@@ -484,7 +485,6 @@ unsigned int GetBefore (
     bitset<8> interval_mem;
     bitset<8> interval_lcp;
     
-
     interval_lcp[sigma-1-RevMapping(c)]=1;
     StackPush(&lifo_interval, &interval_lcp);
     bitset<8> * Beforemem = new bitset<8> [3];
@@ -968,7 +968,9 @@ unsigned int GetMaws( unsigned char * seqfinal_fname, unsigned char * seq_id, st
 		seq_length=7*ram_use/8;
 	    char * seq = (char*) malloc (seq_length*sizeof(char));
 	    char * res = (char*) malloc (ram_use/8*sizeof(char));
-	    fread(seq,sizeof(char),seq_length,fseq);
+	    size_t result;
+	    result=fread(seq,sizeof(char),seq_length,fseq);
+	    if ( result == 0 )	fprintf( stderr,"fread failed to read.\n");
 	    stream_reader<triplet> * fout_r= new stream_reader<triplet> (out_file_compressed, ram_use/8);
 	    
         unsigned char c=' ';
@@ -976,10 +978,10 @@ unsigned int GetMaws( unsigned char * seqfinal_fname, unsigned char * seq_id, st
 	    INT j=0LLU;
 	    INT jr=0LLU;
 
-        fprintf(stderr,"ram_use for seq %llu\n",ram_use/2);
+        fprintf(stderr,"ram_use for seq %lu\n",ram_use/2);
 	    while (seq_read<n)
 	    {
-            fprintf(stderr,"seq_read %llu seq_length %llu \n",seq_read, seq_length);
+            fprintf(stderr,"seq_read %lu seq_length %lu \n",seq_read, seq_length);
             fout_r->goto_pos(offset_out);
 	    	while (! fout_r->empty())
 	    	{	
@@ -1014,10 +1016,13 @@ unsigned int GetMaws( unsigned char * seqfinal_fname, unsigned char * seq_id, st
                 }
             }
             if (seq_read==0)
-                fprintf(stderr,"number of maws printed in the first pass %llu \n",j);
+                fprintf(stderr,"number of maws printed in the first pass %lu \n",j);
             seq_read+=seq_length;
-            fread(seq,sizeof(char),seq_length,fseq);
-            fprintf(stderr, "fread seq_read %llu seq_length %llu\n",seq_read,seq_length);
+	    size_t result;
+            result = fread(seq,sizeof(char),seq_length,fseq);
+	    if ( result == 0 )	fprintf( stderr,"fread failed to read.\n");
+
+            fprintf(stderr, "fread seq_read %lu seq_length %lu\n",seq_read,seq_length);
 	    }
 	    fwrite(res, sizeof(char),jr,out_fd);
 	    cout <<j<<" maws printed"<<endl;
