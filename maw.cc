@@ -70,7 +70,10 @@ int main(int argc, char **argv)
 	double start = gettime();
 
 	/* Read the (Multi)FASTA file in memory */
-	if ( ! ( in_fd = fopen ( input_filename, "r") ) )
+	if ( strncmp (input_filename, "-", 1) == 0) {
+		in_fd = stdin;
+	}
+	else if ( ! ( in_fd = fopen ( input_filename, "r") ) )
 	{
 		fprintf ( stderr, " Error: Cannot open file %s!\n", input_filename );
 		return ( 1 );
