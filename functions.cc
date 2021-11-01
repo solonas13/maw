@@ -582,7 +582,11 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, INT * SA, INT
 	}
 	StackDispose(&lifo_lcp);
 
-	if ( ! ( out_fd = fopen ( out_file, "a") ) )
+	if ( strncmp (out_file, "-", 1) == 0)
+	{
+		out_fd = stdout;
+	}
+	else if ( ! ( out_fd = fopen ( out_file, "a") ) )
 	{
 		fprintf ( stderr, " Error: Cannot open file %s!\n", out_file );
 		return ( 1 );
@@ -645,7 +649,7 @@ unsigned int GetMaws( unsigned char * seq, unsigned char * seq_id, INT * SA, INT
 
 	fprintf( out_fd, "\n" );
 
-	if ( fclose ( out_fd ) )
+	if ( strncmp (out_file, "-", 1) == 1 && fclose ( out_fd ) )
 	{
 		fprintf( stderr, " Error: file close error!\n");
 		return ( 1 );
